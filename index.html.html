@@ -1,0 +1,1554 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>홀짝 카지노</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Chakra+Petch:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: neon arcade casino night. Marquee sign, live ticker, HUD, six colour-coded game tabs, then a stage plus betting rail per game. Chunky outlined panels with hard offset shadows. Single dark look by choice. */
+:root {
+  --bg: #150b36; --panel: #271668; --panel-2: #36218a; --edge: #0b0522;
+  --ink: #fff7e8; --mute: #c3b8f0;
+  --gold: #ffd23f; --gold-deep: #c98f00; --pink: #ff3d8b; --cyan: #35e0ff; --lime: #9dff4a; --violet: #b57bff;
+  --win: #6dffa0; --lose: #ff7a90;
+  --odd: #ff3d5a; --even: #3d5afe;
+  --c-oe: #ff4d6d; --c-ball: #ffb703; --c-snail: #8dff4a; --c-plane: #35c9ff; --c-shop: #b57bff; --c-rank: #ffd23f;
+  --f-display: 'Black Han Sans', 'Noto Sans KR', sans-serif;
+  --f-body: 'Noto Sans KR', system-ui, sans-serif;
+  --f-num: 'Chakra Petch', 'Noto Sans KR', monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+html, body { min-height: 100%; }
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(60% 40% at 12% 0%, rgba(255,61,139,.30), transparent 70%),
+    radial-gradient(50% 40% at 92% 8%, rgba(53,224,255,.22), transparent 70%),
+    radial-gradient(70% 50% at 50% 108%, rgba(181,123,255,.28), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cg fill='%23ffffff' fill-opacity='.05' font-size='30' font-family='sans-serif'%3E%3Ctext x='12' y='44'%3E♠%3C/text%3E%3Ctext x='96' y='70'%3E♥%3C/text%3E%3Ctext x='30' y='124'%3E♦%3C/text%3E%3Ctext x='108' y='148'%3E♣%3C/text%3E%3C/g%3E%3C/svg%3E");
+  color: var(--ink);
+  font-family: var(--f-body);
+  padding-block: 18px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1060px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+button { font-family: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+button:disabled { cursor: not-allowed; }
+
+/* marquee sign */
+.sign { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 30px 22px; border: 4px solid var(--edge); border-radius: 24px; background: linear-gradient(180deg, #4a22b8, #26116d); box-shadow: 0 7px 0 var(--edge), 0 0 44px rgba(255,61,139,.35); overflow: hidden; }
+.sign::before, .sign::after { content: ""; position: absolute; left: 14px; right: 14px; height: 12px; background: radial-gradient(circle at 50% 50%, var(--gold) 0 4px, transparent 5px) 0 0 / 26px 12px repeat-x; animation: bulbs 1.4s ease-in-out infinite; }
+.sign::before { top: 8px; }
+.sign::after { bottom: 8px; background-position: 13px 0; animation-delay: -.7s; }
+@keyframes bulbs { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+h1 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(34px, 7vw, 58px); line-height: 1; letter-spacing: .02em; color: transparent; background: linear-gradient(180deg, #fff4b8, var(--gold) 55%, #ff9f1c); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 4px 0 #6b2f00) drop-shadow(0 0 18px rgba(255,210,63,.45)); text-wrap: balance; }
+h1 small { display: block; margin-top: 8px; font-family: var(--f-body); font-size: 12px; letter-spacing: .22em; font-weight: 700; color: var(--cyan); -webkit-text-fill-color: var(--cyan); filter: none; }
+.sign-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.me { display: flex; align-items: center; gap: 10px; background: var(--edge); border: 3px solid var(--gold); border-radius: 999px; padding: 5px 16px 5px 5px; min-width: 0; }
+.avatar { width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #6a3fd1, #2a1475); border: 3px solid var(--gold); overflow: hidden; flex: none; }
+.avatar svg { width: 100%; height: 100%; display: block; }
+.me b { display: block; font-size: 14px; line-height: 1.25; overflow-wrap: anywhere; }
+.me span { font-size: 12px; color: var(--mute); display: block; }
+.rankchip { font-family: var(--f-num); font-weight: 700; font-size: 20px; color: var(--gold); line-height: 1; text-align: center; padding-left: 4px; }
+.rankchip small { display: block; font-size: 11px; color: var(--mute); font-weight: 500; margin-top: 2px; }
+.tool { background: var(--panel-2); color: var(--ink); border: 3px solid var(--edge); border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 700; box-shadow: 0 3px 0 var(--edge); }
+.tool:hover { background: #4a2ec0; }
+.tool:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+.tool.warn { background: #7a1030; border-color: var(--lose); }
+
+/* live ticker */
+.ticker { display: flex; align-items: center; gap: 12px; background: var(--panel); border: 3px solid var(--edge); border-radius: 999px; padding: 7px 16px 7px 8px; box-shadow: 0 4px 0 var(--edge); min-width: 0; }
+.live { flex: none; display: flex; align-items: center; gap: 6px; background: var(--pink); color: #fff; font-weight: 700; font-size: 12px; letter-spacing: .1em; padding: 4px 11px; border-radius: 999px; border: 2px solid var(--edge); }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: pulse 1s ease-in-out infinite; }
+@keyframes pulse { 50% { transform: scale(.5); opacity: .5; } }
+.tick-text { flex: 1; min-width: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tick-text b { color: var(--gold); }
+.tick-text.in { animation: slideIn .5s ease-out; }
+@keyframes slideIn { from { transform: translateY(80%); opacity: 0; } to { transform: none; opacity: 1; } }
+.online { flex: none; font-size: 12px; color: var(--mute); white-space: nowrap; }
+.online b { color: var(--win); font-family: var(--f-num); }
+
+/* HUD */
+.hud { display: grid; grid-template-columns: 1.7fr repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tile { background: var(--panel); border: 3px solid var(--edge); border-radius: 16px; box-shadow: 0 4px 0 var(--edge); padding: 10px 14px; min-width: 0; }
+.tile .k { font-size: 12px; color: var(--mute); letter-spacing: .06em; }
+.tile .v { font-family: var(--f-num); font-weight: 700; font-size: clamp(18px, 3vw, 24px); margin-top: 2px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.tile.main { background: linear-gradient(160deg, #5a2bd6, #2a1475); border-color: var(--gold); box-shadow: 0 4px 0 var(--edge), 0 0 0 3px rgba(255,210,63,.25), 0 0 30px rgba(255,210,63,.28); }
+.tile.main .v { font-size: clamp(28px, 5.4vw, 42px); color: var(--gold); text-shadow: 0 3px 0 rgba(0,0,0,.4); }
+.delta { font-size: 12px; font-weight: 700; margin-top: 2px; color: var(--mute); }
+.delta.up { color: var(--win); }
+.delta.down { color: var(--lose); }
+
+/* tabs */
+.tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.tab { --tc: var(--c-oe); display: grid; justify-items: center; gap: 4px; padding: 10px 4px 9px; border-radius: 16px; border: 3px solid var(--edge); background: var(--panel); color: var(--ink); box-shadow: 0 5px 0 var(--edge); font-family: var(--f-display); font-size: clamp(14px, 2.3vw, 19px); transition: transform .08s; }
+.tab svg { width: 30px; height: 30px; color: var(--tc); }
+.tab:hover { transform: translateY(-2px); }
+.tab[aria-selected="true"] { background: var(--tc); color: #1a0836; transform: translateY(-4px); box-shadow: 0 9px 0 var(--edge), 0 0 26px -2px var(--tc); }
+.tab[aria-selected="true"] svg { color: #1a0836; }
+.tab[data-tab="oe"] { --tc: var(--c-oe); } .tab[data-tab="ball"] { --tc: var(--c-ball); } .tab[data-tab="snail"] { --tc: var(--c-snail); }
+.tab[data-tab="plane"] { --tc: var(--c-plane); } .tab[data-tab="shop"] { --tc: var(--c-shop); } .tab[data-tab="rank"] { --tc: var(--c-rank); }
+
+/* game layout */
+.pane { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.table { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 22px; align-items: start; }
+.stage { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 14px; border: 3px solid var(--edge); border-radius: 24px; box-shadow: 0 7px 0 var(--edge); padding: 26px 16px 18px; background: radial-gradient(circle at 50% 35%, var(--sg1), var(--sg2) 75%); min-width: 0; overflow: hidden; }
+#stage-oe { --sg1: #7a1d5e; --sg2: #2a0f55; }
+#stage-ball { --sg1: #7a520c; --sg2: #2f1560; }
+#stage-snail { --sg1: #1f6a35; --sg2: #17325e; }
+#stage-plane { --sg1: #1f4aa8; --sg2: #1a1050; }
+.stage.shake { animation: shake .45s; }
+@keyframes shake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-7px); } 40%, 60% { transform: translateX(7px); } }
+.wheel-box { position: relative; width: min(100%, 360px); aspect-ratio: 1; }
+.wheel-box svg { width: 100%; height: 100%; display: block; }
+#wheel { transition: transform 4.2s cubic-bezier(.1, .65, .12, 1); transform-origin: 50% 50%; filter: drop-shadow(0 10px 0 rgba(0,0,0,.35)); }
+.pointer { position: absolute; left: 50%; top: -8px; width: 0; height: 0; transform: translateX(-50%); border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 30px solid var(--gold); filter: drop-shadow(0 3px 0 var(--edge)); z-index: 2; }
+.seg-odd { fill: var(--odd); }
+.seg-even { fill: var(--even); }
+.seg-text { fill: var(--ink); font-family: var(--f-num); font-weight: 700; font-size: 17px; text-anchor: middle; dominant-baseline: central; }
+.hub-txt { fill: var(--gold); font-family: var(--f-display); font-size: 17px; text-anchor: middle; dominant-baseline: central; }
+.machine { width: min(100%, 300px); aspect-ratio: 300 / 360; display: block; }
+
+.result { min-height: 88px; text-align: center; display: grid; align-content: center; gap: 4px; }
+.result .big { font-family: var(--f-display); font-size: clamp(26px, 6vw, 40px); line-height: 1.1; text-shadow: 0 3px 0 var(--edge); }
+.result .sub { color: var(--mute); font-size: 14px; }
+.result.win .big { color: var(--win); text-shadow: 0 3px 0 var(--edge), 0 0 24px rgba(109,255,160,.6); }
+.result.lose .big { color: var(--lose); }
+
+.rail { --rc: var(--c-oe); display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; background: var(--panel); border: 3px solid var(--edge); border-radius: 22px; box-shadow: 0 7px 0 var(--edge); padding: 20px; min-width: 0; }
+#rail-ball { --rc: var(--c-ball); } #rail-snail { --rc: var(--c-snail); } #rail-plane { --rc: var(--c-plane); }
+.rail h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 24px; color: var(--rc); text-shadow: 0 2px 0 var(--edge); }
+.pay { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pay div { border: 3px solid var(--edge); border-radius: 14px; padding: 8px 10px; text-align: center; box-shadow: 0 3px 0 var(--edge); }
+.pay small { display: block; font-size: 12px; font-weight: 700; color: #1a0836; opacity: .85; }
+.pay b { font-family: var(--f-display); font-weight: 400; font-size: 28px; color: #1a0836; line-height: 1.1; }
+.pay .pw { background: var(--win); } .pay .pl { background: var(--lose); }
+.notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; font-size: 13px; color: var(--mute); }
+.notes li::before { content: "•"; color: var(--rc); margin-right: 7px; font-weight: 700; }
+label.cap { font-size: 12px; letter-spacing: .08em; color: var(--mute); display: block; margin-bottom: 6px; font-weight: 700; }
+.betbox { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 3px solid var(--edge); border-radius: 14px; padding: 4px 14px; box-shadow: inset 0 4px 0 rgba(0,0,0,.35); }
+.betbox:focus-within { border-color: var(--gold); }
+.betbox input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--ink); font-family: var(--f-num); font-weight: 700; font-size: 28px; padding: 8px 0; font-variant-numeric: tabular-nums; outline: none; }
+.betbox span { color: var(--mute); font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.chip { background: var(--panel-2); border: 2px solid var(--edge); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; font-family: var(--f-num); box-shadow: 0 3px 0 var(--edge); }
+.chip:hover:not(:disabled) { background: #4a2ec0; color: var(--gold); }
+.chip:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+.chip:disabled, .pick:disabled, .ballpick:disabled, .snailpick:disabled, .btn:disabled { opacity: .45; }
+.preview { font-size: 14px; color: var(--mute); display: grid; gap: 4px; font-variant-numeric: tabular-nums; background: rgba(0,0,0,.22); border-radius: 12px; padding: 10px 12px; }
+.preview b { color: var(--ink); }
+.preview b.w { color: var(--win); } .preview b.l { color: var(--lose); }
+
+.picks { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pick { border: 3px solid var(--edge); border-radius: 18px; padding: 16px 8px; color: #fff; font-family: var(--f-display); font-size: 38px; line-height: 1; display: grid; gap: 6px; box-shadow: 0 7px 0 var(--edge), inset 0 3px 0 rgba(255,255,255,.3); transition: transform .08s, box-shadow .08s, filter .2s; }
+.pick small { font-family: var(--f-body); font-size: 12px; font-weight: 700; opacity: .9; }
+.pick.odd { background: var(--odd); } .pick.even { background: var(--even); }
+.pick:hover:not(:disabled) { filter: brightness(1.15); }
+.pick:active:not(:disabled) { transform: translateY(5px); box-shadow: 0 2px 0 var(--edge), inset 0 3px 0 rgba(255,255,255,.3); }
+.pick.chosen { outline: 4px solid var(--gold); outline-offset: 2px; }
+.ballpicks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.ballpick { aspect-ratio: 1; border-radius: 50%; border: 3px solid var(--edge); background: var(--c); color: #1b2a49; font-family: var(--f-num); font-weight: 700; font-size: clamp(20px, 5vw, 26px); box-shadow: 0 5px 0 var(--edge), inset 0 0 0 4px rgba(255,255,255,.55); transition: transform .08s, filter .2s; }
+.ballpick:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-2px); }
+.ballpick:active:not(:disabled) { transform: translateY(3px); }
+.ballpick.chosen { outline: 4px solid var(--gold); outline-offset: 2px; }
+.snailpicks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.snailpick { display: grid; grid-template-columns: 56px 1fr; align-items: center; gap: 6px; text-align: left; border: 3px solid var(--edge); border-radius: 16px; background: var(--sc); color: #1a0836; padding: 6px 10px 6px 6px; box-shadow: 0 6px 0 var(--edge), inset 0 3px 0 rgba(255,255,255,.35); transition: transform .08s, filter .2s; }
+.snailpick svg { width: 56px; height: 40px; }
+.snailpick b { font-family: var(--f-display); font-weight: 400; font-size: 18px; display: block; line-height: 1.1; }
+.snailpick small { font-size: 12px; font-weight: 700; }
+.snailpick:hover:not(:disabled) { filter: brightness(1.1); }
+.snailpick:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 var(--edge), inset 0 3px 0 rgba(255,255,255,.35); }
+.snailpick.chosen { outline: 4px solid var(--gold); outline-offset: 2px; }
+
+.btn { background: var(--gold); color: #2b1f00; border: 3px solid var(--edge); border-radius: 14px; padding: 12px 18px; font-weight: 700; font-size: 16px; box-shadow: 0 5px 0 var(--edge), inset 0 3px 0 rgba(255,255,255,.45); }
+.btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--edge), inset 0 3px 0 rgba(255,255,255,.45); }
+.btn.go { width: 100%; font-family: var(--f-display); font-weight: 400; font-size: 24px; padding: 16px; background: var(--c-plane); color: #06223a; }
+.btn.go.fly { background: var(--win); animation: throb .7s ease-in-out infinite; }
+@keyframes throb { 50% { box-shadow: 0 5px 0 var(--edge), 0 0 26px 4px var(--win), inset 0 3px 0 rgba(255,255,255,.45); } }
+.over { display: none; text-align: center; background: #4a0f2c; border: 3px solid var(--lose); border-radius: 14px; padding: 16px; gap: 10px; }
+.over.show { display: grid; }
+.over b { font-family: var(--f-display); font-weight: 400; font-size: 24px; color: var(--lose); }
+.over small { color: var(--mute); }
+.autochips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.autobox { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 3px solid var(--edge); border-radius: 14px; padding: 2px 14px; box-shadow: inset 0 4px 0 rgba(0,0,0,.35); }
+.autobox input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--ink); font-family: var(--f-num); font-weight: 700; font-size: 22px; padding: 8px 0; outline: none; }
+.autobox span { color: var(--mute); font-weight: 700; }
+
+/* panels, history, spark */
+.panel { background: var(--panel); border: 3px solid var(--edge); border-radius: 18px; box-shadow: 0 5px 0 var(--edge); padding: 16px 18px; min-width: 0; }
+.panel h3 { margin: 0 0 12px; font-size: 13px; letter-spacing: .08em; color: var(--mute); font-weight: 700; }
+.hist { display: flex; flex-wrap: wrap; gap: 8px; min-height: 52px; align-content: flex-start; }
+.hist .empty { color: var(--mute); font-size: 14px; }
+.dot { width: 44px; text-align: center; font-size: 11px; font-weight: 700; }
+.dot i { display: grid; place-items: center; width: 38px; height: 38px; margin: 0 auto 2px; border-radius: 50%; font-style: normal; font-family: var(--f-num); font-size: 15px; border: 3px solid var(--win); color: #fff; }
+.dot.o i { background: var(--odd); } .dot.e i { background: var(--even); }
+.dot.b i, .dot.s i { color: #1b2a49; }
+.dot.p i { background: #1f4aa8; font-size: 11px; }
+.dot.lost i { border-color: var(--lose); }
+.dot span.w { color: var(--win); } .dot span.l { color: var(--lose); }
+.spark { width: 100%; height: 90px; display: block; }
+.spark .grid { stroke: rgba(255,247,232,.18); stroke-width: 1; stroke-dasharray: 3 4; }
+.spark .line { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.spark .area { fill: rgba(255,210,63,.16); stroke: none; }
+.spark .end { fill: var(--gold); stroke: var(--edge); stroke-width: 2; }
+.note { font-size: 12px; color: var(--mute); margin: 8px 0 0; }
+
+/* snail race */
+.track { position: relative; width: min(100%, 580px); border: 3px solid var(--edge); border-radius: 16px; overflow: hidden; background: #2c8a3a; box-shadow: 0 5px 0 var(--edge); }
+.lane { position: relative; height: 60px; border-bottom: 3px dashed rgba(255,255,255,.4); background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 44px, transparent 44px 88px); }
+.lane:nth-child(even) { background-color: rgba(0,0,0,.12); }
+.lane:last-of-type { border-bottom: 0; }
+.lane .no { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: var(--sc); color: #1a0836; display: grid; place-items: center; font-weight: 700; font-family: var(--f-num); border: 3px solid var(--edge); z-index: 2; }
+.lane .snail { position: absolute; left: 46px; top: 7px; width: 64px; height: 46px; will-change: transform; z-index: 1; }
+.lane .snail svg { width: 100%; height: 100%; display: block; }
+.lane .trail { position: absolute; left: 60px; top: 38px; height: 7px; border-radius: 4px; background: linear-gradient(90deg, transparent, var(--sc)); opacity: .75; width: 0; }
+.finish { position: absolute; right: 0; top: 0; bottom: 0; width: 26px; background: repeating-conic-gradient(#fff 0 25%, #111 0 50%) 0 0 / 13px 13px; border-left: 3px solid var(--edge); z-index: 3; }
+.call { min-height: 22px; font-weight: 700; color: var(--lime); text-align: center; font-size: 15px; }
+
+/* plane */
+.plane-cv { width: min(100%, 580px); aspect-ratio: 560 / 340; display: block; border: 3px solid var(--edge); border-radius: 16px; box-shadow: 0 5px 0 var(--edge); background: #1a1050; }
+
+/* shop */
+.shop-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.shop-head h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 28px; color: var(--c-shop); text-shadow: 0 2px 0 var(--edge); }
+.shop-head p { margin: 0; color: var(--mute); font-size: 14px; max-width: 80ch; }
+.shop-msg { min-height: 22px; font-weight: 700; color: var(--win); font-size: 15px; }
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+.card { display: grid; gap: 10px; background: var(--panel); border: 3px solid var(--edge); border-radius: 18px; box-shadow: 0 6px 0 var(--edge); padding: 12px; min-width: 0; }
+.card.owned { border-color: var(--gold); box-shadow: 0 6px 0 var(--edge), 0 0 22px rgba(255,210,63,.3); }
+.card.pop { animation: pop .6s; }
+@keyframes pop { 0% { transform: scale(.94); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+.art { aspect-ratio: 1.25; border-radius: 12px; display: grid; place-items: center; position: relative; overflow: hidden; border: 3px solid var(--edge); background: radial-gradient(circle at 50% 45%, var(--t1), var(--t2)); }
+.art::before { content: ""; position: absolute; inset: -40%; background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.1) 0 10deg, transparent 10deg 20deg); }
+.art svg { position: relative; height: 88%; width: auto; max-width: 100%; transition: filter .3s; }
+.card.locked .art svg { filter: grayscale(.9) brightness(.5); }
+.tier { position: absolute; left: 8px; top: 8px; background: var(--edge); border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; z-index: 1; }
+.badge { position: absolute; right: 8px; top: 8px; background: var(--gold); color: #2b1f00; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; border: 2px solid var(--edge); z-index: 1; }
+.card h4 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 22px; }
+.card p { margin: 0; font-size: 13px; color: var(--mute); }
+.mult { font-size: 13px; color: var(--mute); }
+.mult b { color: var(--win); font-family: var(--f-num); font-size: 20px; margin-left: 4px; }
+.mult b.lim { color: var(--gold); font-size: 17px; }
+.rare { font-size: 12px; color: var(--cyan); font-weight: 700; }
+.price { font-family: var(--f-num); font-weight: 700; font-size: 22px; color: var(--gold); font-variant-numeric: tabular-nums; }
+.price small { display: block; font-size: 12px; color: var(--mute); font-weight: 500; }
+.meter { height: 10px; border-radius: 99px; background: var(--bg); border: 2px solid var(--edge); overflow: hidden; }
+.meter i { display: block; height: 100%; background: linear-gradient(90deg, var(--pink), var(--gold)); }
+.need { font-size: 12px; color: var(--mute); }
+.card .btn { width: 100%; }
+
+/* ranking */
+.rank-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.rank-col { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; min-width: 0; }
+.board-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.board-head h3 { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: 24px; color: var(--c-rank); letter-spacing: 0; }
+.seg { display: flex; gap: 6px; }
+.seg button { background: var(--panel-2); color: var(--ink); border: 2px solid var(--edge); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700; }
+.seg button[aria-pressed="true"] { background: var(--gold); color: #2b1f00; }
+.rows { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.row { display: grid; grid-template-columns: 34px 42px minmax(0, 1fr) auto; align-items: center; gap: 10px; background: rgba(0,0,0,.22); border: 2px solid transparent; border-radius: 14px; padding: 6px 12px 6px 8px; }
+.row.me { background: rgba(255,210,63,.16); border-color: var(--gold); }
+.row.gap { display: block; text-align: center; color: var(--mute); background: transparent; padding: 0; letter-spacing: .3em; }
+.rk { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--panel-2); font-family: var(--f-num); font-weight: 700; font-size: 14px; }
+.rk.r1 { background: var(--gold); color: #2b1f00; } .rk.r2 { background: #d5dbe8; color: #1b2230; } .rk.r3 { background: #e58a4a; color: #2a1200; }
+.av { width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle at 50% 35%, #6a3fd1, #2a1475); border: 2px solid var(--edge); overflow: hidden; }
+.av svg { width: 100%; height: 100%; display: block; }
+.nm { min-width: 0; font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+.nm small { display: block; font-weight: 400; font-size: 12px; color: var(--mute); }
+.wt { font-family: var(--f-num); font-weight: 700; font-size: 15px; color: var(--gold); font-variant-numeric: tabular-nums; text-align: right; }
+.nickbox { display: flex; gap: 8px; margin-top: 12px; }
+.nickbox input { flex: 1; min-width: 0; background: var(--bg); border: 3px solid var(--edge); border-radius: 12px; color: var(--ink); padding: 8px 12px; font-size: 14px; font-family: var(--f-body); }
+.feed { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.feed li { font-size: 13px; background: rgba(0,0,0,.22); border-radius: 12px; padding: 8px 12px; display: grid; gap: 2px; }
+.feed li b { color: var(--gold); }
+.feed time { font-size: 11px; color: var(--mute); }
+.achs { display: grid; gap: 10px; }
+.ach { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: center; background: rgba(0,0,0,.22); border: 2px solid transparent; border-radius: 14px; padding: 8px 10px; }
+.ach.done { border-color: var(--win); background: rgba(109,255,160,.1); }
+.ach .ic { width: 34px; height: 34px; border-radius: 50%; background: var(--panel-2); display: grid; place-items: center; font-weight: 700; color: var(--mute); }
+.ach.done .ic { background: var(--win); color: #06301a; }
+.ach b { font-size: 14px; display: block; }
+.ach small { font-size: 12px; color: var(--mute); display: block; }
+.ach .pc { height: 6px; border-radius: 99px; background: var(--bg); overflow: hidden; margin-top: 5px; }
+.ach .pc i { display: block; height: 100%; background: var(--cyan); }
+.foot { font-size: 12px; color: var(--mute); margin: 0; }
+
+.toasts { position: fixed; left: 0; right: 0; bottom: 0; display: grid; justify-items: center; gap: 8px; padding: 0 16px calc(16px + env(safe-area-inset-bottom, 0px)); pointer-events: none; z-index: 30; }
+.toast { background: var(--gold); color: #2b1f00; border: 3px solid var(--edge); border-radius: 999px; padding: 10px 20px; font-weight: 700; box-shadow: 0 5px 0 var(--edge); animation: toast 3.4s ease-out forwards; max-width: 100%; text-align: center; }
+@keyframes toast { 0% { transform: translateY(30px); opacity: 0; } 10%, 85% { transform: none; opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
+canvas#fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+
+@media (max-width: 860px) {
+  .table, .rank-grid { grid-template-columns: minmax(0, 1fr); }
+  .hud { grid-template-columns: 1fr 1fr; }
+  .tile.main { grid-column: 1 / -1; }
+  .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .online { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #wheel { transition-duration: .01s; }
+  .stage.shake, .card.pop, .btn.go.fly, .sign::before, .sign::after, .tick-text.in { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="sign">
+    <h1>홀짝 카지노<small>ODD · EVEN · BALL · SNAIL · SKY</small></h1>
+    <div class="sign-right">
+      <div class="me">
+        <div class="avatar" id="avatar"></div>
+        <div><b id="avName">새내기 도박사</b><span id="colCount"></span></div>
+        <div class="rankchip"><span id="rankNo">#-</span><small id="rankOf"></small></div>
+      </div>
+      <button class="tool" id="snd" type="button" aria-pressed="true">소리 켜짐</button>
+      <button class="tool" id="restart" type="button">모두 초기화</button>
+    </div>
+  </header>
+
+  <div class="ticker" aria-live="off">
+    <span class="live"><i></i>LIVE</span>
+    <span class="tick-text" id="tick"></span>
+    <span class="online">접속 중 <b id="online">0</b>명</span>
+  </div>
+
+  <section class="hud" aria-label="현황">
+    <div class="tile main"><div class="k">현재 잔액</div><div class="v" id="bal">10,000원</div><div class="delta" id="delta"></div></div>
+    <div class="tile"><div class="k">베팅 한도</div><div class="v" id="limitStat">-</div></div>
+    <div class="tile"><div class="k">총 라운드</div><div class="v" id="rounds">0</div></div>
+    <div class="tile"><div class="k">적중률</div><div class="v" id="rate">-</div></div>
+    <div class="tile"><div class="k">최고 잔액</div><div class="v" id="best">-</div></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="게임 선택">
+    <button class="tab" role="tab" id="tab-oe" data-tab="oe" aria-selected="true" aria-controls="pane-oe" type="button"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="4"/><path d="M16 4v8M16 20v8M4 16h8M20 16h8"/></svg>홀짝</button>
+    <button class="tab" role="tab" id="tab-ball" data-tab="ball" aria-selected="false" aria-controls="pane-ball" type="button"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="16" cy="16" r="12"/><circle cx="16" cy="16" r="5.5"/><path d="M13.5 16h5"/></svg>머니볼</button>
+    <button class="tab" role="tab" id="tab-snail" data-tab="snail" aria-selected="false" aria-controls="pane-snail" type="button"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="13" r="8"/><path d="M15 13a3 3 0 1 1 3 3"/><path d="M3 26h22c3 0 4-3 4-6V9M27 9l-1-4M30 9l1-4"/></svg>달팽이</button>
+    <button class="tab" role="tab" id="tab-plane" data-tab="plane" aria-selected="false" aria-controls="pane-plane" type="button"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18l24-12-8 22-5-8z"/><path d="M14 20l13-14"/></svg>비행기</button>
+    <button class="tab" role="tab" id="tab-shop" data-tab="shop" aria-selected="false" aria-controls="pane-shop" type="button"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11h16l2 16H6z"/><path d="M12 11V9a4 4 0 0 1 8 0v2"/></svg>상점</button>
+    <button class="tab" role="tab" id="tab-rank" data-tab="rank" aria-selected="false" aria-controls="pane-rank" type="button"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5h14v8a7 7 0 0 1-14 0z"/><path d="M9 8H4v2a5 5 0 0 0 5 5M23 8h5v2a5 5 0 0 1-5 5M16 20v5M10 27h12"/></svg>랭킹</button>
+  </nav>
+
+  <!-- 홀짝 -->
+  <section id="pane-oe" role="tabpanel" aria-labelledby="tab-oe" class="pane">
+    <div class="table">
+      <div class="stage" id="stage-oe">
+        <div class="wheel-box"><div class="pointer"></div><svg id="wheel" viewBox="-170 -170 340 340" role="img" aria-label="1부터 20까지 홀수 빨강 짝수 파랑 룰렛 휠"></svg></div>
+        <div class="result" id="oeResult" aria-live="polite"></div>
+      </div>
+      <div class="rail" id="rail-oe">
+        <h2>홀짝 베팅</h2>
+        <div class="pay"><div class="pw"><small>맞히면</small><b>×3</b></div><div class="pl"><small>틀리면</small><b>×0.5</b></div></div>
+        <ul class="notes"><li>최소 베팅 100원, 100원 단위예요.</li><li>대표 캐릭터 배수는 적중 시 받는 돈에 곱해져요.</li></ul>
+        <div id="oeBetSlot"></div>
+        <div class="preview" id="oePreview"></div>
+        <div class="picks"><button class="pick odd" id="pickOdd" type="button">홀<small>1 · 3 · 5 · 7 …</small></button><button class="pick even" id="pickEven" type="button">짝<small>2 · 4 · 6 · 8 …</small></button></div>
+        <div class="over"><b>잔액이 부족해요</b><div>최소 베팅 금액(100원)보다 잔액이 적어요.</div><button class="btn again" type="button">1만원으로 다시 시작</button><small>보유한 캐릭터는 그대로 남아요.</small></div>
+      </div>
+    </div>
+    <div class="panel"><h3>홀짝 최근 결과 (최대 12회)</h3><div class="hist" id="oeHist"></div></div>
+  </section>
+
+  <!-- 머니볼 -->
+  <section id="pane-ball" role="tabpanel" aria-labelledby="tab-ball" class="pane" hidden>
+    <div class="table">
+      <div class="stage" id="stage-ball">
+        <canvas id="mb" class="machine" role="img" aria-label="1부터 5까지 번호가 적힌 공이 섞이는 추첨기"></canvas>
+        <div class="result" id="ballResult" aria-live="polite"></div>
+      </div>
+      <div class="rail" id="rail-ball">
+        <h2>머니볼 베팅</h2>
+        <div class="pay"><div class="pw"><small>맞히면</small><b>×5</b></div><div class="pl"><small>틀리면</small><b>×0.7</b></div></div>
+        <ul class="notes"><li>1부터 5까지 공 하나가 나와요.</li><li>번호를 누르면 바로 추첨이 시작돼요.</li></ul>
+        <div id="ballBetSlot"></div>
+        <div class="preview" id="ballPreview"></div>
+        <div><label class="cap">맞힐 번호</label><div class="ballpicks" id="ballPicks"></div></div>
+        <div class="over"><b>잔액이 부족해요</b><div>최소 베팅 금액(100원)보다 잔액이 적어요.</div><button class="btn again" type="button">1만원으로 다시 시작</button><small>보유한 캐릭터는 그대로 남아요.</small></div>
+      </div>
+    </div>
+    <div class="panel"><h3>머니볼 최근 결과 (최대 12회)</h3><div class="hist" id="ballHist"></div></div>
+  </section>
+
+  <!-- 달팽이 -->
+  <section id="pane-snail" role="tabpanel" aria-labelledby="tab-snail" class="pane" hidden>
+    <div class="table">
+      <div class="stage" id="stage-snail">
+        <div class="track" id="track"></div>
+        <div class="call" id="snailCall" aria-live="polite"></div>
+        <div class="result" id="snailResult" aria-live="polite"></div>
+      </div>
+      <div class="rail" id="rail-snail">
+        <h2>달팽이 경주</h2>
+        <div class="pay"><div class="pw"><small>우승 맞히면</small><b>×6</b></div><div class="pl"><small>틀리면</small><b>×0.5</b></div></div>
+        <ul class="notes"><li>네 마리의 우승 확률은 모두 같아요.</li><li>달팽이를 누르면 바로 경주가 시작돼요.</li></ul>
+        <div id="snailBetSlot"></div>
+        <div class="preview" id="snailPreview"></div>
+        <div><label class="cap">우승할 달팽이</label><div class="snailpicks" id="snailPicks"></div></div>
+        <div class="over"><b>잔액이 부족해요</b><div>최소 베팅 금액(100원)보다 잔액이 적어요.</div><button class="btn again" type="button">1만원으로 다시 시작</button><small>보유한 캐릭터는 그대로 남아요.</small></div>
+      </div>
+    </div>
+    <div class="panel"><h3>달팽이 최근 우승 (최대 12회)</h3><div class="hist" id="snailHist"></div></div>
+  </section>
+
+  <!-- 비행기 -->
+  <section id="pane-plane" role="tabpanel" aria-labelledby="tab-plane" class="pane" hidden>
+    <div class="table">
+      <div class="stage" id="stage-plane">
+        <canvas id="pl" class="plane-cv" role="img" aria-label="배율이 올라가다 추락하는 비행기"></canvas>
+        <div class="result" id="planeResult" aria-live="polite"></div>
+      </div>
+      <div class="rail" id="rail-plane">
+        <h2>비행기 정산</h2>
+        <div class="pay"><div class="pw"><small>최대 배율</small><b>×12</b></div><div class="pl"><small>추락하면</small><b>×0</b></div></div>
+        <ul class="notes"><li>비행기는 1~12배 사이 무작위 배율에서 추락해요.</li><li>추락하기 전에 정산하면 그 배율만큼 받아요.</li><li>비행기는 한도가 다른 게임의 40%예요.</li></ul>
+        <div id="planeBetSlot"></div>
+        <div>
+          <label class="cap" for="planeAuto">자동 정산 배율 (비워 두면 직접 정산)</label>
+          <div class="autobox"><input id="planeAuto" type="text" inputmode="decimal" autocomplete="off" placeholder="예: 3"><span>배</span></div>
+          <div class="autochips"><button class="chip autochip" type="button" data-auto="2">×2</button><button class="chip autochip" type="button" data-auto="3">×3</button><button class="chip autochip" type="button" data-auto="6">×6</button><button class="chip autochip" type="button" data-auto="">끄기</button></div>
+        </div>
+        <div class="preview" id="planePreview"></div>
+        <button class="btn go" id="planeGo" type="button">이륙!</button>
+        <div class="over"><b>잔액이 부족해요</b><div>최소 베팅 금액(100원)보다 잔액이 적어요.</div><button class="btn again" type="button">1만원으로 다시 시작</button><small>보유한 캐릭터는 그대로 남아요.</small></div>
+      </div>
+    </div>
+    <div class="panel"><h3>비행기 최근 기록 (최대 12회)</h3><div class="hist" id="planeHist"></div></div>
+  </section>
+
+  <!-- 상점 -->
+  <section id="pane-shop" role="tabpanel" aria-labelledby="tab-shop" class="pane" hidden>
+    <div class="shop-head">
+      <h2>캐릭터 상점</h2>
+      <p>가장 저렴한 캐릭터가 100만원이고, 단계가 오를 때마다 가격이 2배가 돼요. 캐릭터는 1단계부터 순서대로만 살 수 있어요. 장착한 캐릭터의 배수만큼 적중 시 받는 돈이 커지고(×5, ×7.5, ×10 … 단계마다 2.5씩), 6단계부터는 한 번에 걸 수 있는 베팅 한도도 함께 올라가요. 캐릭터는 모두 20종이에요.</p>
+      <div class="shop-msg" id="shopMsg" aria-live="polite"></div>
+    </div>
+    <div class="shop-grid" id="shopGrid"></div>
+  </section>
+
+  <!-- 랭킹 -->
+  <section id="pane-rank" role="tabpanel" aria-labelledby="tab-rank" class="pane" hidden>
+    <div class="rank-grid">
+      <div class="rank-col">
+        <div class="panel">
+          <div class="board-head"><h3>실시간 랭킹</h3><div class="seg"><button type="button" id="modeWorth" aria-pressed="true">총 자산</button><button type="button" id="modeTier" aria-pressed="false">수집 단계</button></div></div>
+          <ol class="rows" id="rankList"></ol>
+          <div class="nickbox"><input id="nick" type="text" maxlength="12" placeholder="내 닉네임" aria-label="내 닉네임"><button class="tool" id="nickSave" type="button">저장</button></div>
+          <p class="note">총 자산은 잔액과 보유 캐릭터 가격의 합이에요.</p>
+        </div>
+        <div class="panel"><h3>플레이어 소식</h3><ul class="feed" id="feedList"></ul></div>
+      </div>
+      <div class="rank-col">
+        <div class="panel"><h3>달성 현황 <span id="achCount"></span></h3><div class="achs" id="achList"></div></div>
+        <p class="foot">랭킹과 소식, 달성 비율에 나오는 다른 플레이어는 게임이 만들어 낸 가상 유저예요.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>잔액 변화</h3>
+    <svg class="spark" id="spark" viewBox="0 0 300 90" preserveAspectRatio="none" role="img" aria-label="라운드별 잔액 변화 그래프"></svg>
+    <p class="note" id="sparkNote"></p>
+  </section>
+</div>
+<canvas id="fx"></canvas>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script>
+(function () {
+  var START = 10000, MIN_BET = 100, SEG = 20, ANG = 360 / SEG, SAVE_KEY = 'oddEvenCasinoSave2';
+  var GAMES = ['oe', 'ball', 'snail', 'plane'];
+  var RULES = { oe: { win: 3, lose: 5 }, ball: { win: 5, lose: 7 }, snail: { win: 6, lose: 5 } }; /* lose is tenths of the bet returned */
+  var LIMIT_FACTOR = { oe: 1, ball: 1, snail: 1, plane: 0.4 };
+  var PLANE_RATE = 0.2, PLANE_MAX = 12; /* multiplier = e^(0.2 t) */
+  var BALL_COLORS = ['#ff3d5a', '#ffd23f', '#3a86ff', '#2ec4b6', '#b57bff'];
+  var SNAILS = [
+    { n: 1, name: '번개', c: '#ff4d6d' }, { n: 2, name: '로켓', c: '#35c9ff' },
+    { n: 3, name: '터보', c: '#ffd23f' }, { n: 4, name: '슈퍼', c: '#8dff4a' }
+  ];
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  /* ---------- characters ---------- */
+  function svg(inner) { return '<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + inner + '</svg>'; }
+  var SHADOW = '<ellipse cx="60" cy="110" rx="34" ry="6" fill="rgba(0,0,0,.3)"/>';
+  var ART = {
+    rookie: svg(SHADOW +
+      '<circle cx="60" cy="70" r="30" fill="#ffd9b3" stroke="#a8683a" stroke-width="3"/>' +
+      '<path d="M30 62 C32 36 88 36 90 62Z" fill="#3a86ff" stroke="#1d4ea0" stroke-width="3"/><rect x="28" y="60" width="64" height="7" rx="3.5" fill="#2764c4"/>' +
+      '<circle cx="49" cy="76" r="4" fill="#1d1b2e"/><circle cx="71" cy="76" r="4" fill="#1d1b2e"/>' +
+      '<path d="M50 88 Q60 96 70 88" fill="none" stroke="#1d1b2e" stroke-width="3" stroke-linecap="round"/>'),
+    slime: svg(SHADOW +
+      '<path d="M22 92 C18 56 38 34 60 34 C82 34 102 56 98 92 C97 104 84 106 60 106 C36 106 23 104 22 92Z" fill="#f2c14e" stroke="#8a6410" stroke-width="3"/>' +
+      '<path d="M36 54 C40 46 48 42 56 42" fill="none" stroke="#fff6cf" stroke-width="5" stroke-linecap="round" opacity=".8"/>' +
+      '<circle cx="46" cy="72" r="6" fill="#2b1f00"/><circle cx="74" cy="72" r="6" fill="#2b1f00"/>' +
+      '<circle cx="48" cy="70" r="2" fill="#fff"/><circle cx="76" cy="70" r="2" fill="#fff"/>' +
+      '<path d="M52 84 Q60 91 68 84" fill="none" stroke="#2b1f00" stroke-width="3" stroke-linecap="round"/>' +
+      '<circle cx="60" cy="30" r="10" fill="#ffd966" stroke="#8a6410" stroke-width="2.5"/>' +
+      '<text x="60" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#8a6410" font-family="sans-serif">₩</text>'),
+    rabbit: svg(SHADOW +
+      '<ellipse cx="44" cy="30" rx="9" ry="24" fill="#fff" stroke="#9aa5b1" stroke-width="3"/><ellipse cx="44" cy="33" rx="4" ry="15" fill="#ffb3c1"/>' +
+      '<ellipse cx="76" cy="30" rx="9" ry="24" fill="#fff" stroke="#9aa5b1" stroke-width="3"/><ellipse cx="76" cy="33" rx="4" ry="15" fill="#ffb3c1"/>' +
+      '<circle cx="60" cy="76" r="32" fill="#fff" stroke="#9aa5b1" stroke-width="3"/>' +
+      '<circle cx="49" cy="74" r="5" fill="#1b2a49"/><circle cx="71" cy="74" r="5" fill="#1b2a49"/>' +
+      '<circle cx="51" cy="72" r="1.8" fill="#fff"/><circle cx="73" cy="72" r="1.8" fill="#fff"/>' +
+      '<circle cx="42" cy="85" r="5" fill="#ffb3c1" opacity=".7"/><circle cx="78" cy="85" r="5" fill="#ffb3c1" opacity=".7"/>' +
+      '<ellipse cx="60" cy="84" rx="4" ry="3" fill="#ff7b95"/>' +
+      '<path d="M60 87 L60 91 M54 93 Q60 97 66 93" fill="none" stroke="#1b2a49" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<circle cx="56" cy="54" r="4.2" fill="#3fbf6b"/><circle cx="64" cy="54" r="4.2" fill="#3fbf6b"/><circle cx="56" cy="61" r="4.2" fill="#3fbf6b"/><circle cx="64" cy="61" r="4.2" fill="#3fbf6b"/>'),
+    fox: svg(SHADOW +
+      '<path d="M28 58 L32 16 L56 44Z" fill="#e8a33d" stroke="#8c4f0a" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M92 58 L88 16 L64 44Z" fill="#e8a33d" stroke="#8c4f0a" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M36 44 L37 28 L47 40Z" fill="#5a2d0c"/><path d="M84 44 L83 28 L73 40Z" fill="#5a2d0c"/>' +
+      '<path d="M20 68 C20 48 38 42 60 42 C82 42 100 48 100 68 C100 90 82 104 60 104 C38 104 20 90 20 68Z" fill="#f4b64a" stroke="#8c4f0a" stroke-width="3"/>' +
+      '<path d="M21 72 C34 72 48 86 60 102 C44 106 26 94 21 72Z" fill="#fff6e0"/><path d="M99 72 C86 72 72 86 60 102 C76 106 94 94 99 72Z" fill="#fff6e0"/>' +
+      '<path d="M40 68 Q46 62 52 68" fill="none" stroke="#3b1d06" stroke-width="3.5" stroke-linecap="round"/><path d="M68 68 Q74 62 80 68" fill="none" stroke="#3b1d06" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<ellipse cx="60" cy="88" rx="5.5" ry="4" fill="#3b1d06"/>' +
+      '<path d="M60 46 L55 56 L60 61 L65 56Z" fill="#fff0a8" stroke="#b98a1c" stroke-width="1.5"/>'),
+    magician: svg(SHADOW +
+      '<rect x="54" y="2" width="20" height="26" rx="2" transform="rotate(14 64 15)" fill="#fff" stroke="#1d1b2e" stroke-width="2"/>' +
+      '<text x="64" y="21" text-anchor="middle" font-size="13" fill="#d62839" font-family="sans-serif" transform="rotate(14 64 15)">♥</text>' +
+      '<rect x="36" y="16" width="48" height="38" rx="4" fill="#1d1b2e" stroke="#000" stroke-width="2"/><rect x="36" y="40" width="48" height="8" fill="#d62839"/>' +
+      '<ellipse cx="60" cy="56" rx="38" ry="8" fill="#1d1b2e" stroke="#000" stroke-width="2"/>' +
+      '<circle cx="60" cy="82" r="25" fill="#ffd9b3" stroke="#a8683a" stroke-width="3"/>' +
+      '<circle cx="50" cy="79" r="3.8" fill="#1d1b2e"/><circle cx="70" cy="79" r="3.8" fill="#1d1b2e"/><circle cx="70" cy="79" r="8" fill="none" stroke="#f2c14e" stroke-width="2.5"/>' +
+      '<path d="M44 90 Q52 84 60 90 Q68 84 76 90 Q68 96 60 92 Q52 96 44 90Z" fill="#3a2a1a"/>' +
+      '<path d="M60 108 L48 102 L48 114Z" fill="#d62839"/><path d="M60 108 L72 102 L72 114Z" fill="#d62839"/><circle cx="60" cy="108" r="3" fill="#a31c2a"/>'),
+    dragon: svg(SHADOW +
+      '<path d="M34 42 L26 12 L50 32Z" fill="#f2c14e" stroke="#8a6410" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M86 42 L94 12 L70 32Z" fill="#f2c14e" stroke="#8a6410" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M18 70 C18 44 38 34 60 34 C82 34 102 44 102 70 C102 92 82 106 60 106 C38 106 18 92 18 70Z" fill="#2ec4b6" stroke="#0b6b63" stroke-width="3"/>' +
+      '<ellipse cx="60" cy="88" rx="23" ry="15" fill="#7ee8dc" stroke="#0b6b63" stroke-width="2.5"/>' +
+      '<circle cx="52" cy="88" r="2.6" fill="#0b6b63"/><circle cx="68" cy="88" r="2.6" fill="#0b6b63"/>' +
+      '<ellipse cx="41" cy="64" rx="8" ry="9" fill="#fff"/><ellipse cx="79" cy="64" rx="8" ry="9" fill="#fff"/>' +
+      '<ellipse cx="42" cy="64" rx="2.8" ry="6.5" fill="#1b2a49"/><ellipse cx="78" cy="64" rx="2.8" ry="6.5" fill="#1b2a49"/>' +
+      '<path d="M52 36 L60 20 L68 36Z" fill="#f2c14e" stroke="#8a6410" stroke-width="2" stroke-linejoin="round"/>' +
+      '<circle cx="60" cy="50" r="7" fill="#d62839" stroke="#f2c14e" stroke-width="2"/><circle cx="60" cy="50" r="2" fill="#f2c14e"/>'),
+    king: svg(SHADOW +
+      '<path d="M16 114 C18 86 36 78 60 78 C84 78 102 86 104 114Z" fill="#b3202f" stroke="#5c0f18" stroke-width="3"/>' +
+      '<path d="M32 84 Q60 98 88 84 L88 92 Q60 106 32 92Z" fill="#fff" stroke="#c9c9c9" stroke-width="1.5"/>' +
+      '<circle cx="60" cy="64" r="26" fill="#ffd9b3" stroke="#a8683a" stroke-width="3"/>' +
+      '<path d="M36 68 C38 94 82 94 84 68 C78 80 42 80 36 68Z" fill="#f4f4f4" stroke="#b0b0b0" stroke-width="2"/>' +
+      '<circle cx="50" cy="60" r="3.6" fill="#1d1b2e"/><circle cx="70" cy="60" r="3.6" fill="#1d1b2e"/>' +
+      '<path d="M30 42 L34 12 L47 27 L60 8 L73 27 L86 12 L90 42Z" fill="#f2c14e" stroke="#8a6410" stroke-width="3" stroke-linejoin="round"/>' +
+      '<rect x="30" y="38" width="60" height="9" fill="#e0a82a" stroke="#8a6410" stroke-width="2"/>' +
+      '<text x="60" y="45.5" text-anchor="middle" font-size="8" font-weight="700" fill="#5c0f18" font-family="sans-serif">777</text>' +
+      '<circle cx="34" cy="12" r="3" fill="#d62839"/><circle cx="60" cy="8" r="3.4" fill="#3a86ff"/><circle cx="86" cy="12" r="3" fill="#d62839"/>'),
+    cat: svg(SHADOW +
+      '<path d="M28 54 L30 20 L54 40Z" fill="#c9ced8" stroke="#6b7280" stroke-width="3" stroke-linejoin="round"/><path d="M92 54 L90 20 L66 40Z" fill="#c9ced8" stroke="#6b7280" stroke-width="3" stroke-linejoin="round"/>' +
+      '<ellipse cx="60" cy="74" rx="36" ry="32" fill="#c9ced8" stroke="#6b7280" stroke-width="3"/>' +
+      '<circle cx="47" cy="72" r="5" fill="#1d1b2e"/><circle cx="73" cy="72" r="5" fill="#1d1b2e"/><circle cx="49" cy="70" r="1.8" fill="#fff"/><circle cx="75" cy="70" r="1.8" fill="#fff"/>' +
+      '<path d="M56 82 L64 82 L60 87Z" fill="#ff7b95"/><path d="M60 87 Q54 94 48 90 M60 87 Q66 94 72 90" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M30 82 L14 78 M30 88 L14 92 M90 82 L106 78 M90 88 L106 92" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<g transform="rotate(-12 60 34)"><rect x="46" y="18" width="28" height="28" rx="6" fill="#fff" stroke="#1d1b2e" stroke-width="2.5"/><circle cx="53" cy="25" r="2.6" fill="#d62839"/><circle cx="67" cy="25" r="2.6" fill="#d62839"/><circle cx="60" cy="32" r="2.6" fill="#d62839"/><circle cx="53" cy="39" r="2.6" fill="#d62839"/><circle cx="67" cy="39" r="2.6" fill="#d62839"/></g>'),
+    turtle: svg(SHADOW +
+      '<ellipse cx="28" cy="98" rx="12" ry="9" fill="#7fbf6a" stroke="#2f6b2a" stroke-width="2.5"/><ellipse cx="92" cy="98" rx="12" ry="9" fill="#7fbf6a" stroke="#2f6b2a" stroke-width="2.5"/>' +
+      '<circle cx="60" cy="36" r="19" fill="#7fbf6a" stroke="#2f6b2a" stroke-width="3"/>' +
+      '<circle cx="53" cy="34" r="3.4" fill="#1d1b2e"/><circle cx="67" cy="34" r="3.4" fill="#1d1b2e"/><path d="M54 44 Q60 49 66 44" fill="none" stroke="#2f6b2a" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<ellipse cx="60" cy="80" rx="42" ry="30" fill="#3f8f4a" stroke="#1f5a2a" stroke-width="3"/>' +
+      '<circle cx="60" cy="80" r="22" fill="#d62839" stroke="#fff" stroke-width="4" stroke-dasharray="8 6"/><circle cx="60" cy="80" r="12" fill="#fff6e0" stroke="#d62839" stroke-width="2.5"/>' +
+      '<text x="60" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#d62839" font-family="sans-serif">$</text>'),
+    owl: svg(SHADOW +
+      '<path d="M32 42 L36 18 L52 36Z" fill="#6b4f35" stroke="#4a3623" stroke-width="2.5" stroke-linejoin="round"/><path d="M88 42 L84 18 L68 36Z" fill="#6b4f35" stroke="#4a3623" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<ellipse cx="60" cy="68" rx="38" ry="42" fill="#8a6a4a" stroke="#4a3623" stroke-width="3"/><ellipse cx="60" cy="86" rx="24" ry="22" fill="#e7d3b0"/>' +
+      '<circle cx="45" cy="58" r="14" fill="#fff6d6" stroke="#4a3623" stroke-width="2.5"/><circle cx="75" cy="58" r="14" fill="#fff6d6" stroke="#4a3623" stroke-width="2.5"/>' +
+      '<circle cx="46" cy="59" r="6" fill="#1d1b2e"/><circle cx="74" cy="59" r="6" fill="#1d1b2e"/><circle cx="48" cy="57" r="2" fill="#fff"/><circle cx="76" cy="57" r="2" fill="#fff"/>' +
+      '<path d="M54 68 L66 68 L60 80Z" fill="#f2a33a" stroke="#a8641b" stroke-width="2" stroke-linejoin="round"/>' +
+      '<path d="M60 88 L63 96 L72 96 L65 101 L67 110 L60 105 L53 110 L55 101 L48 96 L57 96Z" fill="#f2c14e" stroke="#8a6410" stroke-width="1.5" stroke-linejoin="round"/>'),
+    penguin: svg(SHADOW +
+      '<ellipse cx="46" cy="110" rx="12" ry="5" fill="#ff9f1c"/><ellipse cx="74" cy="110" rx="12" ry="5" fill="#ff9f1c"/>' +
+      '<path d="M26 70 Q16 86 28 98 Q32 84 30 70Z" fill="#1d2a49" stroke="#0b1226" stroke-width="2.5"/><path d="M94 70 Q104 86 92 98 Q88 84 90 70Z" fill="#1d2a49" stroke="#0b1226" stroke-width="2.5"/>' +
+      '<ellipse cx="60" cy="68" rx="36" ry="42" fill="#1d2a49" stroke="#0b1226" stroke-width="3"/><ellipse cx="60" cy="80" rx="23" ry="29" fill="#f3f7ff"/>' +
+      '<circle cx="50" cy="52" r="6" fill="#fff"/><circle cx="70" cy="52" r="6" fill="#fff"/><circle cx="51" cy="53" r="3" fill="#000"/><circle cx="69" cy="53" r="3" fill="#000"/>' +
+      '<path d="M53 62 L67 62 L60 72Z" fill="#ff9f1c" stroke="#b86b00" stroke-width="2" stroke-linejoin="round"/>' +
+      '<path d="M26 42 Q60 28 94 42" fill="none" stroke="#2ef2ff" stroke-width="12" stroke-linecap="round" opacity=".28"/><path d="M26 42 Q60 28 94 42" fill="none" stroke="#2ef2ff" stroke-width="5" stroke-linecap="round"/>'),
+    bear: svg(SHADOW +
+      '<circle cx="34" cy="38" r="13" fill="#9c6b43" stroke="#5c3b1e" stroke-width="3"/><circle cx="34" cy="38" r="6" fill="#d7a77a"/><circle cx="86" cy="38" r="13" fill="#9c6b43" stroke="#5c3b1e" stroke-width="3"/><circle cx="86" cy="38" r="6" fill="#d7a77a"/>' +
+      '<circle cx="60" cy="68" r="38" fill="#9c6b43" stroke="#5c3b1e" stroke-width="3"/><ellipse cx="60" cy="82" rx="17" ry="13" fill="#e8c9a0"/>' +
+      '<circle cx="45" cy="68" r="4.5" fill="#1d1b2e"/><circle cx="75" cy="68" r="4.5" fill="#1d1b2e"/><ellipse cx="60" cy="77" rx="6" ry="4.5" fill="#2b1a0e"/>' +
+      '<path d="M60 81 L60 86 M53 89 Q60 94 67 89" fill="none" stroke="#2b1a0e" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M60 34 L70 46 L60 60 L50 46Z" fill="#4cc9f0" stroke="#1d6fa8" stroke-width="2.5" stroke-linejoin="round"/><path d="M50 46 L70 46 M60 34 L56 46 L60 60 M60 34 L64 46 L60 60" fill="none" stroke="#e8fbff" stroke-width="1.2"/>'),
+    wolf: svg(SHADOW +
+      '<path d="M26 58 L28 16 L54 40Z" fill="#7f8896" stroke="#3b4350" stroke-width="3" stroke-linejoin="round"/><path d="M94 58 L92 16 L66 40Z" fill="#7f8896" stroke="#3b4350" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M22 66 C22 46 40 40 60 40 C80 40 98 46 98 66 C98 90 80 106 60 106 C40 106 22 90 22 66Z" fill="#9aa3b2" stroke="#3b4350" stroke-width="3"/>' +
+      '<path d="M44 86 Q60 76 76 86 Q76 104 60 106 Q44 104 44 86Z" fill="#e7ebf2"/><ellipse cx="60" cy="88" rx="6" ry="4.5" fill="#1d1b2e"/>' +
+      '<ellipse cx="42" cy="70" rx="6" ry="5" fill="#ffe14d"/><ellipse cx="78" cy="70" rx="6" ry="5" fill="#ffe14d"/><ellipse cx="43" cy="70" rx="2" ry="4" fill="#1d1b2e"/><ellipse cx="77" cy="70" rx="2" ry="4" fill="#1d1b2e"/>' +
+      '<path d="M65 42 L55 58 L62 58 L57 72 L71 52 L63 52Z" fill="#ffe14d" stroke="#b8860b" stroke-width="2" stroke-linejoin="round"/>'),
+    phoenix: svg(SHADOW +
+      '<path d="M12 78 Q22 40 46 62 Q40 80 28 94Z" fill="#ff7a1a" stroke="#a63a00" stroke-width="3" stroke-linejoin="round"/><path d="M108 78 Q98 40 74 62 Q80 80 92 94Z" fill="#ff7a1a" stroke="#a63a00" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M52 100 Q46 112 56 116 Q60 108 60 104 Q64 112 70 114 Q74 106 68 100Z" fill="#ffb703" stroke="#d65a00" stroke-width="2" stroke-linejoin="round"/>' +
+      '<ellipse cx="60" cy="72" rx="26" ry="32" fill="#ef476f" stroke="#8a1c3a" stroke-width="3"/><path d="M60 60 Q46 82 60 100 Q74 82 60 60Z" fill="#ffd166"/>' +
+      '<path d="M44 40 Q40 22 52 10 Q52 24 58 30 Q60 14 70 8 Q68 24 76 40Z" fill="#ffb703" stroke="#d65a00" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<circle cx="52" cy="56" r="3.5" fill="#1d1b2e"/><circle cx="68" cy="56" r="3.5" fill="#1d1b2e"/><path d="M55 62 L65 62 L60 71Z" fill="#ffb703" stroke="#a65e00" stroke-width="1.5" stroke-linejoin="round"/>'),
+    unicorn: svg(SHADOW +
+      '<path d="M54 36 L60 4 L66 36Z" fill="#ffe08a" stroke="#b98a1c" stroke-width="2.5" stroke-linejoin="round"/><path d="M56 26 L64 22 M55 32 L65 28" stroke="#b98a1c" stroke-width="1.8"/>' +
+      '<path d="M34 50 L38 26 L50 44Z" fill="#fff" stroke="#9aa5b1" stroke-width="2.5" stroke-linejoin="round"/><path d="M86 50 L82 26 L70 44Z" fill="#fff" stroke="#9aa5b1" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M30 50 Q16 72 28 98 Q38 82 40 64Z" fill="#b388ff"/><path d="M90 50 Q104 72 92 98 Q82 82 80 64Z" fill="#7ad7f0"/>' +
+      '<ellipse cx="60" cy="70" rx="30" ry="34" fill="#fff" stroke="#9aa5b1" stroke-width="3"/><ellipse cx="60" cy="90" rx="16" ry="11" fill="#ffd9e6"/>' +
+      '<circle cx="54" cy="90" r="1.8" fill="#c76b8f"/><circle cx="66" cy="90" r="1.8" fill="#c76b8f"/>' +
+      '<path d="M41 68 Q46 74 51 68" fill="none" stroke="#1d1b2e" stroke-width="3.5" stroke-linecap="round"/><path d="M69 68 Q74 74 79 68" fill="none" stroke="#1d1b2e" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<path d="M60 44 L62 50 L68 50 L63 54 L65 60 L60 56 L55 60 L57 54 L52 50 L58 50Z" fill="#f2c14e" stroke="#b98a1c" stroke-width="1.2" stroke-linejoin="round"/>'),
+    golem: svg(SHADOW +
+      '<path d="M44 42 L50 16 L56 42Z" fill="#7dd3fc" stroke="#1d6fa8" stroke-width="2.5" stroke-linejoin="round"/><path d="M58 42 L66 10 L74 42Z" fill="#c4a1ff" stroke="#5b2bb8" stroke-width="2.5" stroke-linejoin="round"/><path d="M74 42 L80 22 L86 44Z" fill="#7dd3fc" stroke="#1d6fa8" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M26 106 L24 64 L38 42 L82 42 L96 64 L94 106Z" fill="#8c95a6" stroke="#3b4350" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M44 56 L52 70 L46 84 M80 74 L72 88" fill="none" stroke="#4a5362" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<rect x="38" y="62" width="16" height="10" rx="2" fill="#7dd3fc"/><rect x="66" y="62" width="16" height="10" rx="2" fill="#7dd3fc"/><rect x="48" y="88" width="24" height="6" rx="2" fill="#3b4350"/>'),
+    fairy: svg(SHADOW +
+      '<ellipse cx="30" cy="62" rx="16" ry="26" transform="rotate(-20 30 62)" fill="#c9f0ff" stroke="#5aa9c8" stroke-width="2.5"/><ellipse cx="90" cy="62" rx="16" ry="26" transform="rotate(20 90 62)" fill="#c9f0ff" stroke="#5aa9c8" stroke-width="2.5"/>' +
+      '<path d="M46 76 L74 76 L84 98 L36 98Z" fill="#ff8fc7" stroke="#b83a86" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M20 110 Q12 98 26 94 Q28 82 44 86 Q56 76 70 86 Q86 82 92 96 Q108 98 100 110Z" fill="#fff" stroke="#9db4c8" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<circle cx="60" cy="54" r="22" fill="#ffe0c2" stroke="#b9794a" stroke-width="3"/><path d="M38 52 C38 28 82 28 82 52 C74 42 48 42 38 52Z" fill="#7b4fd1"/>' +
+      '<circle cx="52" cy="58" r="3.2" fill="#1d1b2e"/><circle cx="68" cy="58" r="3.2" fill="#1d1b2e"/><circle cx="46" cy="65" r="3.5" fill="#ff9bb5" opacity=".7"/><circle cx="74" cy="65" r="3.5" fill="#ff9bb5" opacity=".7"/>' +
+      '<path d="M54 67 Q60 72 66 67" fill="none" stroke="#b9794a" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M60 8 L62.5 15 L70 15 L64 19.5 L66.5 27 L60 22.5 L53.5 27 L56 19.5 L50 15 L57.5 15Z" fill="#f2c14e" stroke="#b98a1c" stroke-width="1.5" stroke-linejoin="round"/>'),
+    pirate: svg(SHADOW +
+      '<circle cx="60" cy="76" r="26" fill="#ffd9b3" stroke="#a8683a" stroke-width="3"/>' +
+      '<path d="M36 80 C38 110 82 110 84 80 C76 92 44 92 36 80Z" fill="#7a4a24" stroke="#4a2c14" stroke-width="2"/>' +
+      '<circle cx="48" cy="72" r="7" fill="#1d1b2e"/><path d="M34 62 L58 76" stroke="#1d1b2e" stroke-width="2.5"/><circle cx="72" cy="72" r="4" fill="#1d1b2e"/>' +
+      '<path d="M52 88 Q60 94 68 88" fill="none" stroke="#4a2c14" stroke-width="3" stroke-linecap="round"/><circle cx="35" cy="82" r="3.5" fill="none" stroke="#f2c14e" stroke-width="2"/>' +
+      '<path d="M16 56 Q60 4 104 56 Q60 46 16 56Z" fill="#1d1b2e" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/><path d="M30 50 Q60 38 90 50" fill="none" stroke="#f2c14e" stroke-width="3"/>' +
+      '<circle cx="60" cy="31" r="6" fill="#fff"/><circle cx="58" cy="30" r="1.5" fill="#1d1b2e"/><circle cx="62" cy="30" r="1.5" fill="#1d1b2e"/>'),
+    robot: svg(SHADOW +
+      '<path d="M60 28 L60 14" stroke="#6b7280" stroke-width="3"/><circle cx="60" cy="12" r="5" fill="#d62839"/>' +
+      '<rect x="16" y="46" width="10" height="20" rx="3" fill="#8b95a5" stroke="#4b5563" stroke-width="2.5"/><rect x="94" y="46" width="10" height="20" rx="3" fill="#8b95a5" stroke="#4b5563" stroke-width="2.5"/>' +
+      '<rect x="38" y="86" width="44" height="24" rx="6" fill="#8b95a5" stroke="#4b5563" stroke-width="3"/>' +
+      '<rect x="26" y="28" width="68" height="58" rx="12" fill="#b9c2cf" stroke="#4b5563" stroke-width="3"/><rect x="34" y="42" width="52" height="22" rx="8" fill="#0b2b3a" stroke="#4b5563" stroke-width="2"/>' +
+      '<circle cx="48" cy="53" r="5" fill="#2ef2ff"/><circle cx="72" cy="53" r="5" fill="#2ef2ff"/><path d="M46 74 H74 M52 70 V78 M60 70 V78 M68 70 V78" fill="none" stroke="#4b5563" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M60 94 L48 88 L48 100Z" fill="#d62839"/><path d="M60 94 L72 88 L72 100Z" fill="#d62839"/><circle cx="60" cy="94" r="2.5" fill="#a31c2a"/>'),
+    astronaut: svg(SHADOW +
+      '<path d="M92 36 L100 22" stroke="#94a3b8" stroke-width="3"/><circle cx="101" cy="20" r="4" fill="#f2c14e"/>' +
+      '<path d="M26 114 C28 92 42 86 60 86 C78 86 92 92 94 114Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="3"/><circle cx="40" cy="102" r="6" fill="#d62839"/><circle cx="80" cy="102" r="6" fill="#3a86ff"/>' +
+      '<circle cx="60" cy="56" r="38" fill="#f1f5f9" stroke="#94a3b8" stroke-width="3"/><ellipse cx="60" cy="58" rx="27" ry="23" fill="#1e2a4a" stroke="#94a3b8" stroke-width="3"/>' +
+      '<ellipse cx="50" cy="48" rx="9" ry="5" transform="rotate(-25 50 48)" fill="#fff" opacity=".35"/><circle cx="70" cy="48" r="1.6" fill="#fff"/><circle cx="74" cy="62" r="1.2" fill="#fff"/><circle cx="46" cy="68" r="1.2" fill="#fff"/>' +
+      '<circle cx="52" cy="60" r="3.5" fill="#7ee0ff"/><circle cx="68" cy="60" r="3.5" fill="#7ee0ff"/>'),
+    angel: svg(SHADOW +
+      '<path d="M32 72 Q6 52 12 24 Q34 30 44 60Z" fill="#fff" stroke="#c7d2e0" stroke-width="3" stroke-linejoin="round"/><path d="M88 72 Q114 52 108 24 Q86 30 76 60Z" fill="#fff" stroke="#c7d2e0" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M34 112 C36 88 46 80 60 80 C74 80 84 88 86 112Z" fill="#fff" stroke="#c7d2e0" stroke-width="3"/>' +
+      '<circle cx="60" cy="58" r="24" fill="#ffe0c2" stroke="#b9794a" stroke-width="3"/><path d="M36 56 C36 32 84 32 84 56 C76 46 46 46 36 56Z" fill="#f2c14e"/>' +
+      '<ellipse cx="60" cy="22" rx="20" ry="6" fill="none" stroke="#f2c14e" stroke-width="5"/>' +
+      '<path d="M47 63 Q52 58 57 63 M63 63 Q68 58 73 63" fill="none" stroke="#1d1b2e" stroke-width="3" stroke-linecap="round"/><circle cx="46" cy="68" r="3.5" fill="#ff9bb5" opacity=".7"/><circle cx="74" cy="68" r="3.5" fill="#ff9bb5" opacity=".7"/>' +
+      '<path d="M54 70 Q60 75 66 70" fill="none" stroke="#b9794a" stroke-width="2.5" stroke-linecap="round"/>')
+  };
+  var CHAR_DATA = [
+    ['slime', '동전 슬라임', '굴러다니는 동전에서 태어난 말랑한 슬라임.'],
+    ['cat', '주사위 고양이', '머리 위 주사위를 굴려 보고 나서야 낮잠을 자요.'],
+    ['rabbit', '행운 토끼', '네잎클로버를 이마에 붙이고 다니는 토끼.'],
+    ['turtle', '칩 거북이', '등껍질이 포커 칩이라 느려도 꾸준히 쌓아요.'],
+    ['fox', '황금 여우', '꼬리 끝까지 금빛이고 숫자 냄새를 잘 맡아요.'],
+    ['owl', '별빛 부엉이', '밤새 별자리로 번호를 점치는 부엉이.'],
+    ['magician', '카드 마술사', '모자 속에서 카드가 끝없이 나와요.'],
+    ['penguin', '네온 펭귄', '네온 머리띠가 반짝이면 분위기가 달아올라요.'],
+    ['dragon', '룰렛 드래곤', '휠이 멈출 때까지 숨을 참는 용.'],
+    ['bear', '보석 곰', '이마의 보석을 닦을 때마다 기분이 좋아져요.'],
+    ['wolf', '번개 늑대', '이마의 번개 무늬가 번쩍이면 승부가 시작돼요.'],
+    ['phoenix', '불꽃 불사조', '파산해도 잿더미에서 다시 일어나는 새.'],
+    ['unicorn', '달빛 유니콘', '보름달이 뜨는 밤에만 테이블에 나타나요.'],
+    ['golem', '크리스털 골렘', '반짝이는 수정을 몸에 키우는 돌 거인.'],
+    ['fairy', '구름 요정', '구름 위에서 조용히 판돈을 지켜봐요.'],
+    ['pirate', '해적 선장', '보물 지도 대신 확률표를 들고 다녀요.'],
+    ['robot', '로봇 딜러', '한 번도 실수한 적 없는 칩 분배 로봇.'],
+    ['astronaut', '우주 비행사', '판돈이 우주만큼 커지는 곳까지 날아가요.'],
+    ['angel', '행운의 천사', '날개를 펴면 연승이 따라온다는 전설.'],
+    ['king', '잭팟 왕', '777을 세 번 연속 맞혔다는 전설의 왕.']
+  ];
+  /* tier i: price 1,000,000 * 2^i won, win multiplier 5 + 2.5 * i */
+  var CHARS = CHAR_DATA.map(function (d, i) {
+    var h = (150 + i * 37) % 360;
+    return { id: d[0], name: d[1], desc: d[2], price: 1000000 * Math.pow(2, i), mult: 5 + 2.5 * i, t1: 'hsl(' + h + ',42%,34%)', t2: 'hsl(' + h + ',50%,13%)' };
+  });
+
+
+  /* ---------- state + save ---------- */
+  var state = {
+    balance: START, rounds: 0, wins: 0, best: START, trend: [START],
+    hist: { oe: [], ball: [], snail: [], plane: [] }, owned: [], equipped: null, shown: START, rot: 0,
+    nick: '', ach: {}, stats: { streak: 0, bestStreak: 0, maxPlane: 0, gw: { oe: 0, ball: 0, snail: 0, plane: 0 } }
+  };
+  var busy = false, tab = 'oe';
+
+  function save() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify({
+        balance: state.balance, rounds: state.rounds, wins: state.wins, best: state.best, trend: state.trend.slice(-80),
+        hist: state.hist, owned: state.owned, equipped: state.equipped, nick: state.nick, ach: state.ach, stats: state.stats
+      }));
+    } catch (e) {}
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(SAVE_KEY); if (!raw) return;
+      var d = JSON.parse(raw);
+      if (typeof d.balance !== 'number' || !isFinite(d.balance) || d.balance < 0) return;
+      state.balance = Math.floor(d.balance);
+      state.rounds = d.rounds | 0; state.wins = d.wins | 0;
+      state.best = Math.max(state.balance, Math.floor(d.best) || START);
+      state.trend = Array.isArray(d.trend) && d.trend.length ? d.trend.filter(function (v) { return typeof v === 'number'; }).slice(-80) : [state.balance];
+      if (!state.trend.length) state.trend = [state.balance];
+      GAMES.forEach(function (g) { state.hist[g] = d.hist && Array.isArray(d.hist[g]) ? d.hist[g].filter(function (r) { return r && typeof r.n === 'number'; }).slice(-12) : []; });
+      state.owned = Array.isArray(d.owned) ? d.owned.filter(function (id) { return CHARS.some(function (c) { return c.id === id; }); }) : [];
+      state.equipped = state.owned.indexOf(d.equipped) >= 0 ? d.equipped : null;
+      state.nick = typeof d.nick === 'string' ? d.nick.slice(0, 12) : '';
+      state.ach = d.ach && typeof d.ach === 'object' ? d.ach : {};
+      if (d.stats && typeof d.stats === 'object') {
+        state.stats.streak = d.stats.streak | 0; state.stats.bestStreak = d.stats.bestStreak | 0; state.stats.maxPlane = +d.stats.maxPlane || 0;
+        GAMES.forEach(function (g) { state.stats.gw[g] = d.stats.gw && d.stats.gw[g] | 0; });
+      }
+      state.shown = state.balance;
+    } catch (e) {}
+  }
+
+  var UNITS = [[1e24, '자'], [1e20, '해'], [1e16, '경'], [1e12, '조'], [1e8, '억'], [1e4, '만']];
+  function short(n) {
+    var f = function (x) { return x.toLocaleString('ko-KR', { maximumFractionDigits: 2 }); };
+    for (var i = 0; i < UNITS.length; i++) if (n >= UNITS[i][0]) return f(n / UNITS[i][0]) + UNITS[i][1] + '원';
+    return f(n) + '원';
+  }
+  function won(n) { return n < 1e12 ? Math.round(n).toLocaleString('ko-KR') + '원' : short(n); }
+  function signed(n) { return (n > 0 ? '+' : n < 0 ? '-' : '') + won(Math.abs(n)); }
+  function plain(n) { return n < 1e21 ? String(Math.round(n)) : n.toLocaleString('fullwide', { useGrouping: false }); }
+  function xf(n) { return '×' + n.toLocaleString('ko-KR', { maximumFractionDigits: 2 }); }
+  function charById(id) { for (var i = 0; i < CHARS.length; i++) if (CHARS[i].id === id) return CHARS[i]; return null; }
+  function charTier(id) { for (var i = 0; i < CHARS.length; i++) if (CHARS[i].id === id) return i + 1; return 0; }
+  var MULT = {}; CHARS.forEach(function (c) { MULT[c.id] = c.mult; });
+  var MAX_MONEY = 1e30;
+  /* bet limit by tier of the equipped character (index 0 = no character); tuned so a perfect player needs roughly 1,150 rounds to reach tier 20 */
+  var LIMITS = [27000, 27000, 27000, 27000, 27000, 27000, 43000, 72000, 130000, 220000, 390000, 700000, 1300000, 2300000, 4200000, 7600000, 14000000, 26000000, 48000000, 90000000, 170000000];
+  function curLimit() { return LIMITS[charTier(state.equipped)]; }
+  function curMult() { return state.equipped && MULT[state.equipped] ? MULT[state.equipped] : 1; }
+  function limitFor(g) { return Math.max(MIN_BET, Math.floor(curLimit() * LIMIT_FACTOR[g] / MIN_BET) * MIN_BET); }
+  function myName() { return state.nick || '새내기 도박사'; }
+  function myWorth() { var w = state.balance; state.owned.forEach(function (id) { w += charById(id).price; }); return w; }
+
+  /* ---------- wheel ---------- */
+  function polar(r, deg) { var a = deg * Math.PI / 180; return [r * Math.sin(a), -r * Math.cos(a)]; }
+  function buildWheel() {
+    var s = '<circle r="166" fill="#c98f00"/><circle r="160" fill="#ffd23f"/><circle r="152" fill="#150b36"/>';
+    for (var i = 0; i < SEG; i++) {
+      var n = i + 1, a0 = i * ANG, a1 = (i + 1) * ANG;
+      var p0 = polar(148, a0), p1 = polar(148, a1);
+      s += '<path class="' + (n % 2 ? 'seg-odd' : 'seg-even') + '" d="M0,0 L' + p0[0].toFixed(2) + ',' + p0[1].toFixed(2) + ' A148,148 0 0 1 ' + p1[0].toFixed(2) + ',' + p1[1].toFixed(2) + ' Z" stroke="#ffd23f" stroke-width="1.2"/>';
+      s += '<text class="seg-text" transform="rotate(' + (a0 + ANG / 2) + ') translate(0,-122)">' + n + '</text>';
+    }
+    s += '<circle r="52" fill="#150b36" stroke="#ffd23f" stroke-width="4"/><circle r="40" fill="#271668" stroke="#c98f00" stroke-width="2"/>';
+    s += '<text class="hub-txt" y="-6">홀</text><text class="hub-txt" y="14">짝</text>';
+    $('wheel').innerHTML = s;
+  }
+
+  /* ---------- sound ---------- */
+  var soundOn = true, actx = null;
+  function ac() {
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
+    if (actx && actx.state === 'suspended') { try { actx.resume(); } catch (e) {} }
+    return actx;
+  }
+  function tone(freq, dur, type, vol, delay) {
+    if (!soundOn) return;
+    var c = ac(); if (!c) return;
+    var t = c.currentTime + (delay || 0), o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol || .08, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + .02);
+  }
+  function ticks(total, N) {
+    for (var i = 0; i < N; i++) {
+      (function (k) { setTimeout(function () { tone(900 + (k % 2) * 120, .04, 'square', .035); }, total * Math.pow(k / N, .55)); })(i);
+    }
+  }
+  function sfxWin() { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, .22, 'triangle', .1, i * .09); }); }
+  function sfxLose() { tone(220, .35, 'sawtooth', .07); tone(165, .5, 'sawtooth', .07, .18); }
+  function sfxBuy() { [392, 523, 659, 784, 1047, 1319].forEach(function (f, i) { tone(f, .25, 'triangle', .09, i * .07); }); }
+
+  /* ---------- confetti ---------- */
+  var cv = $('fx'), cx = cv.getContext('2d'), parts = [], raf = 0;
+  function sizeCv() { cv.width = window.innerWidth; cv.height = window.innerHeight; }
+  sizeCv(); window.addEventListener('resize', sizeCv);
+  function confetti(count) {
+    if (reduce) return;
+    var cols = ['#ffd23f', '#d62839', '#7ee08f', '#f6efe0', '#6ea8ff'];
+    for (var i = 0; i < (count || 140); i++) {
+      parts.push({ x: cv.width / 2 + (Math.random() - .5) * 120, y: cv.height * .45, vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4, w: 6 + Math.random() * 6, h: 8 + Math.random() * 8, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: cols[i % cols.length], life: 1 });
+    }
+    if (!raf) raf = requestAnimationFrame(stepFx);
+  }
+  function stepFx() {
+    cx.clearRect(0, 0, cv.width, cv.height);
+    parts = parts.filter(function (p) { return p.life > 0 && p.y < cv.height + 30; });
+    parts.forEach(function (p) {
+      p.vy += .38; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= .005;
+      cx.save(); cx.globalAlpha = Math.max(p.life, 0); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); cx.restore();
+    });
+    if (parts.length) raf = requestAnimationFrame(stepFx); else { raf = 0; cx.clearRect(0, 0, cv.width, cv.height); }
+  }
+
+  /* ---------- money ball machine ---------- */
+  var machine = (function () {
+    var c = $('mb'), g = c.getContext('2d'), W = 300, H = 360, CX = 150, CY = 148, R = 136, TRAY_Y = 330;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = W * dpr; c.height = H * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var balls = [], phase = 'idle', tStart = 0, target = null, done = null, speedT = reduce ? .6 : 1.6, startPos = null;
+    var MIX_MS = reduce ? 200 : 2600, DROP_MS = reduce ? 1 : 1000;
+    for (var i = 0; i < 5; i++) {
+      var a = i * 1.2566;
+      balls.push({ n: i + 1, x: CX + Math.cos(a) * 62, y: CY + Math.sin(a) * 62, vx: Math.cos(a + 1.5) * 1.6, vy: Math.sin(a + 1.5) * 1.6, r: 20, out: false, dr: 20 });
+    }
+    function step(now) {
+      var i, j, b;
+      for (i = 0; i < balls.length; i++) {
+        b = balls[i]; if (b.out) continue;
+        var sp = Math.hypot(b.vx, b.vy) || .01, k = sp + (speedT - sp) * .05;
+        b.vx = b.vx / sp * k; b.vy = b.vy / sp * k;
+        if (phase === 'mix' && Math.random() < .05) { b.vx += (Math.random() - .5) * 5; b.vy += (Math.random() - .5) * 5; }
+        b.x += b.vx; b.y += b.vy;
+        var dx = b.x - CX, dy = b.y - CY, d = Math.hypot(dx, dy), lim = R - b.r - 4;
+        if (d > lim) {
+          var nx = dx / d, ny = dy / d, dot = b.vx * nx + b.vy * ny;
+          if (dot > 0) { b.vx -= 2 * dot * nx; b.vy -= 2 * dot * ny; }
+          b.x = CX + nx * lim; b.y = CY + ny * lim;
+        }
+      }
+      for (i = 0; i < balls.length; i++) {
+        for (j = i + 1; j < balls.length; j++) {
+          var p = balls[i], q = balls[j]; if (p.out || q.out) continue;
+          var ex = q.x - p.x, ey = q.y - p.y, ed = Math.hypot(ex, ey), md = p.r + q.r;
+          if (ed < md && ed > 0) {
+            var ux = ex / ed, uy = ey / ed, ov = (md - ed) / 2;
+            p.x -= ux * ov; p.y -= uy * ov; q.x += ux * ov; q.y += uy * ov;
+            var rv = (p.vx - q.vx) * ux + (p.vy - q.vy) * uy;
+            if (rv > 0) { p.vx -= rv * ux; p.vy -= rv * uy; q.vx += rv * ux; q.vy += rv * uy; }
+          }
+        }
+      }
+      if (phase === 'mix' && now - tStart > MIX_MS) {
+        phase = 'drop'; tStart = now; speedT = 1; target.out = true; startPos = { x: target.x, y: target.y };
+      } else if (phase === 'drop') {
+        var pr = Math.min((now - tStart) / DROP_MS, 1), e = pr * pr * (3 - 2 * pr);
+        var A = { x: CX, y: CY + R - 8 }, B = { x: CX, y: TRAY_Y };
+        if (e < .5) { var u = e / .5; target.x = startPos.x + (A.x - startPos.x) * u; target.y = startPos.y + (A.y - startPos.y) * u; }
+        else { var v = (e - .5) / .5; target.x = A.x + (B.x - A.x) * v; target.y = A.y + (B.y - A.y) * v; }
+        target.dr = 20 + 6 * e;
+        if (pr >= 1) { phase = 'show'; tStart = now; }
+      } else if (phase === 'show' && now - tStart > (reduce ? 50 : 450)) {
+        phase = 'rest'; tStart = now;
+        var cbk = done; done = null; if (cbk) cbk();
+      } else if (phase === 'rest' && now - tStart > (reduce ? 400 : 1800)) {
+        target.out = false; target.x = CX; target.y = CY; target.dr = 20; target.vx = 1.2; target.vy = -1.2;
+        target = null; phase = 'idle'; speedT = reduce ? .6 : 1.6;
+      }
+    }
+    function drawBall(b, x, y, r) {
+      g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fillStyle = BALL_COLORS[b.n - 1]; g.fill();
+      g.lineWidth = 2; g.strokeStyle = 'rgba(0,0,0,.35)'; g.stroke();
+      g.beginPath(); g.arc(x - r * .32, y - r * .36, r * .34, 0, 6.2832); g.fillStyle = 'rgba(255,255,255,.3)'; g.fill();
+      g.beginPath(); g.arc(x, y + r * .06, r * .56, 0, 6.2832); g.fillStyle = '#fff6e0'; g.fill();
+      g.fillStyle = '#1b2a49'; g.font = '700 ' + Math.round(r * .8) + 'px "Chakra Petch", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(String(b.n), x, y + r * .08);
+    }
+    function draw() {
+      g.clearRect(0, 0, W, H);
+      /* chute and tray sit behind the globe */
+      g.fillStyle = '#0b0522'; g.strokeStyle = '#c98f00'; g.lineWidth = 3;
+      g.beginPath(); g.rect(CX - 28, CY + R - 12, 56, 46); g.fill(); g.stroke();
+      g.beginPath(); g.moveTo(CX - 62, 306); g.lineTo(CX + 62, 306); g.lineTo(CX + 52, 358); g.lineTo(CX - 52, 358); g.closePath(); g.fillStyle = '#150b36'; g.fill(); g.stroke();
+      /* globe */
+      var gr = g.createRadialGradient(CX - 40, CY - 50, 10, CX, CY, R);
+      gr.addColorStop(0, 'rgba(255,255,255,.16)'); gr.addColorStop(1, 'rgba(21,11,54,.85)');
+      g.beginPath(); g.arc(CX, CY, R, 0, 6.2832); g.fillStyle = gr; g.fill();
+      for (var i = 0; i < balls.length; i++) if (!balls[i].out) drawBall(balls[i], balls[i].x, balls[i].y, balls[i].r);
+      g.beginPath(); g.arc(CX, CY, R, 0, 6.2832); g.lineWidth = 6; g.strokeStyle = '#ffd23f'; g.stroke();
+      g.beginPath(); g.arc(CX, CY, R + 4, 0, 6.2832); g.lineWidth = 2; g.strokeStyle = '#c98f00'; g.stroke();
+      g.beginPath(); g.arc(CX, CY, R - 14, 3.6, 4.5); g.lineWidth = 5; g.lineCap = 'round'; g.strokeStyle = 'rgba(255,255,255,.35)'; g.stroke();
+      if (target && target.out) {
+        if (phase === 'show' || phase === 'rest') { g.beginPath(); g.arc(target.x, target.y, target.dr + 10, 0, 6.2832); g.fillStyle = 'rgba(255,210,63,.25)'; g.fill(); }
+        drawBall(target, target.x, target.y, target.dr);
+      }
+    }
+    function loop(now) { step(now); if (c.offsetParent) draw(); requestAnimationFrame(loop); }
+    requestAnimationFrame(loop);
+    return {
+      draw: function (n, cb) {
+        target = balls[n - 1]; done = cb; phase = 'mix'; tStart = performance.now(); speedT = reduce ? 1.2 : 6;
+      }
+    };
+  })();
+
+
+  /* ---------- snail race ---------- */
+  function snailSVG(c) {
+    return '<svg viewBox="0 0 64 46" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<ellipse cx="32" cy="43" rx="28" ry="3" fill="rgba(0,0,0,.28)"/>' +
+      '<path d="M3 40 C3 34 9 32 17 32 L45 32 C51 32 53 28 53 22 L53 14 C53 10 59 10 59 14 L59 32 C59 38 55 41 48 41 L8 41 C5 41 3 40 3 40Z" fill="#f6dcae" stroke="#0b0522" stroke-width="2.5" stroke-linejoin="round"/>' +
+      '<path d="M54 12 L51 4 M58 12 L61 4" stroke="#0b0522" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<circle cx="51" cy="3.5" r="2.6" fill="#fff" stroke="#0b0522" stroke-width="1.6"/><circle cx="61" cy="3.5" r="2.6" fill="#fff" stroke="#0b0522" stroke-width="1.6"/>' +
+      '<circle cx="56" cy="20" r="1.8" fill="#0b0522"/><path d="M54 25 Q57 27 59 24" fill="none" stroke="#0b0522" stroke-width="1.8" stroke-linecap="round"/>' +
+      '<circle cx="29" cy="22" r="16" fill="' + c + '" stroke="#0b0522" stroke-width="2.5"/>' +
+      '<path d="M29 22 m-9 0 a9 9 0 1 1 9 9 a6 6 0 1 1 -6 -6 a3 3 0 0 1 3 3" fill="none" stroke="rgba(11,5,34,.55)" stroke-width="2.2" stroke-linecap="round"/>' +
+      '<ellipse cx="22" cy="13" rx="4" ry="2.4" fill="rgba(255,255,255,.55)" transform="rotate(-30 22 13)"/></svg>';
+  }
+  function buildTrack() {
+    var h = '';
+    SNAILS.forEach(function (s) {
+      h += '<div class="lane" style="--sc:' + s.c + '"><span class="no">' + s.n + '</span><div class="trail" id="trail' + s.n + '"></div><div class="snail" id="snail' + s.n + '">' + snailSVG(s.c) + '</div></div>';
+    });
+    $('track').innerHTML = h + '<div class="finish"></div>';
+    $('snailPicks').innerHTML = SNAILS.map(function (s) {
+      return '<button class="snailpick" type="button" data-n="' + s.n + '" style="--sc:' + s.c + '">' + snailSVG('#fff7e8') + '<span><b>' + s.n + '번 ' + s.name + '</b><small>×6 우승</small></span></button>';
+    }).join('');
+    placeSnails([0, 0, 0, 0], 0);
+  }
+  function placeSnails(ps, t) {
+    var lane = $('track').firstChild, W = lane ? lane.clientWidth : 500, travel = Math.max(10, W - 46 - 26 - 64 - 6);
+    for (var i = 0; i < 4; i++) {
+      var x = ps[i] * travel, bob = ps[i] > 0 && ps[i] < 1 ? Math.sin(t * 14 + i * 1.7) * 1.6 : 0;
+      $('snail' + (i + 1)).style.transform = 'translate(' + x.toFixed(1) + 'px,' + bob.toFixed(1) + 'px)';
+      $('trail' + (i + 1)).style.width = Math.max(0, x + 8).toFixed(1) + 'px';
+    }
+  }
+  /* returns the winner (1-4); the others always arrive later, so the result is decided up front */
+  function raceSnails(onDone) {
+    var win = Math.floor(Math.random() * 4) + 1, T = [], K = [], PH = [], i;
+    for (i = 0; i < 4; i++) { T[i] = (i + 1 === win) ? 6.2 : 6.8 + Math.random() * 1.6; K[i] = 1 + Math.floor(Math.random() * 2); PH[i] = Math.random() * 6.28; }
+    var t0 = performance.now(), lastLead = 0;
+    if (reduce) { placeSnails([0, 0, 0, 0].map(function (_, j) { return j + 1 === win ? 1 : .9; }), 0); setTimeout(function () { onDone(win); }, 300); return; }
+    function frame(now) {
+      var t = (now - t0) / 1000, ps = [], done = true, lead = 0, best = -1;
+      for (var j = 0; j < 4; j++) {
+        var u = Math.min(t / T[j], 1);
+        ps[j] = u + .05 * (Math.sin(6.2832 * K[j] * u + PH[j]) - Math.sin(PH[j]));
+        if (u < 1) done = false;
+        if (ps[j] > best) { best = ps[j]; lead = j + 1; }
+      }
+      placeSnails(ps, t);
+      if (lead !== lastLead && t > .4) { lastLead = lead; $('snailCall').textContent = lead + '번 ' + SNAILS[lead - 1].name + '이(가) 앞서가요!'; }
+      if (!done) requestAnimationFrame(frame); else { $('snailCall').textContent = win + '번 ' + SNAILS[win - 1].name + ' 결승선 통과!'; onDone(win); }
+    }
+    $('snailCall').textContent = '출발!';
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- plane: drawing ---------- */
+  var PW = 560, PH = 340;
+  var pl = { cv: $('pl'), g: null, st: 'idle', tl: 0, last: 0, c: 1, tc: 0, tAuto: 0, bet: 0, auto: 0, cashM: 0, pts: [], parts: [], fall: null, idleT: 0, dash: 0, stars: [], clouds: [] };
+  (function () {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    pl.cv.width = PW * dpr; pl.cv.height = PH * dpr;
+    pl.g = pl.cv.getContext('2d'); pl.g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (var i = 0; i < 46; i++) pl.stars.push({ x: Math.random() * PW, y: Math.random() * PH * .6, r: .6 + Math.random() * 1.4, p: Math.random() * 6 });
+    for (var j = 0; j < 6; j++) pl.clouds.push({ x: Math.random() * PW, y: 40 + Math.random() * 170, w: 50 + Math.random() * 60, s: 8 + Math.random() * 14 });
+  })();
+  function mAt(t) { return Math.exp(PLANE_RATE * t); }
+  function planePos(t) {
+    var h = Math.min(Math.log(mAt(t)) / Math.log(PLANE_MAX), 1);
+    return { x: 46 + Math.pow(h, .75) * (PW - 190), y: PH - 62 - h * (PH - 140), h: h };
+  }
+  function planeSprite(g, x, y, ang, s, flame) {
+    g.save(); g.translate(x, y); g.rotate(ang); g.scale(s, s);
+    g.lineJoin = 'round'; g.lineWidth = 3; g.strokeStyle = '#0b0522';
+    if (flame) { g.fillStyle = '#ff9f1c'; g.beginPath(); g.moveTo(-36, 0); g.lineTo(-56 - Math.random() * 10, -4); g.lineTo(-56 - Math.random() * 10, 4); g.closePath(); g.fill(); }
+    g.fillStyle = '#ff3d8b'; g.beginPath(); g.moveTo(-30, -2); g.lineTo(-46, -20); g.lineTo(-33, -20); g.lineTo(-14, -2); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#fff7e8'; g.beginPath(); g.ellipse(0, 0, 38, 12, 0, 0, 6.2832); g.fill(); g.stroke();
+    g.fillStyle = '#ffd23f'; g.beginPath(); g.moveTo(-8, 3); g.lineTo(-26, 24); g.lineTo(-10, 24); g.lineTo(14, 4); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = '#35e0ff'; g.beginPath(); g.ellipse(16, -3, 9, 5.5, 0, 0, 6.2832); g.fill(); g.stroke();
+    g.fillStyle = '#ff3d8b'; g.fillRect(-14, -1, 22, 4);
+    g.restore();
+  }
+  function boom(x, y) {
+    for (var i = 0; i < 46; i++) {
+      var a = Math.random() * 6.28, v = 40 + Math.random() * 220;
+      pl.parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 40, life: 1, r: 3 + Math.random() * 6, c: ['#ffd23f', '#ff9f1c', '#ff3d5a', '#fff7e8'][i % 4] });
+    }
+  }
+  function drawPlane(now, dt) {
+    var g = pl.g, i, p;
+    var sky = g.createLinearGradient(0, 0, 0, PH);
+    sky.addColorStop(0, '#120a3a'); sky.addColorStop(.55, '#4b1c93'); sky.addColorStop(.88, '#ff5d8f'); sky.addColorStop(1, '#ffb36b');
+    g.fillStyle = sky; g.fillRect(0, 0, PW, PH);
+    for (i = 0; i < pl.stars.length; i++) { p = pl.stars[i]; g.globalAlpha = .35 + .4 * Math.sin(now / 420 + p.p); g.fillStyle = '#fff'; g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.2832); g.fill(); }
+    g.globalAlpha = 1;
+    g.fillStyle = 'rgba(255,247,200,.9)'; g.beginPath(); g.arc(486, 66, 30, 0, 6.2832); g.fill();
+    g.fillStyle = 'rgba(180,150,220,.35)'; g.beginPath(); g.arc(476, 60, 7, 0, 6.2832); g.arc(496, 78, 5, 0, 6.2832); g.fill();
+    var fast = pl.st === 'flying' || pl.st === 'reveal' ? (pl.st === 'reveal' ? 6 : 2.6) : 1;
+    for (i = 0; i < pl.clouds.length; i++) {
+      p = pl.clouds[i]; p.x -= p.s * fast * dt; if (p.x < -p.w * 2) { p.x = PW + p.w; p.y = 40 + Math.random() * 170; }
+      g.fillStyle = 'rgba(255,255,255,.16)'; g.beginPath(); g.ellipse(p.x, p.y, p.w, p.w * .22, 0, 0, 6.2832); g.ellipse(p.x + p.w * .4, p.y - p.w * .12, p.w * .55, p.w * .2, 0, 0, 6.2832); g.fill();
+    }
+    g.fillStyle = '#0b0522'; g.fillRect(0, PH - 34, PW, 34);
+    pl.dash = (pl.dash + fast * 90 * dt) % 60;
+    g.fillStyle = '#ffd23f'; for (i = -1; i < 11; i++) g.fillRect(i * 60 - pl.dash, PH - 19, 30, 4);
+
+    var flying = pl.st === 'flying' || pl.st === 'reveal';
+    if (pl.pts.length > 1) {
+      var a = pl.pts[0], z = pl.pts[pl.pts.length - 1];
+      var fill = g.createLinearGradient(0, z.y, 0, PH - 34); fill.addColorStop(0, 'rgba(53,224,255,.40)'); fill.addColorStop(1, 'rgba(53,224,255,0)');
+      g.beginPath(); g.moveTo(a.x, PH - 34); for (i = 0; i < pl.pts.length; i++) g.lineTo(pl.pts[i].x, pl.pts[i].y); g.lineTo(z.x, PH - 34); g.closePath(); g.fillStyle = fill; g.fill();
+      g.beginPath(); g.moveTo(a.x, a.y); for (i = 1; i < pl.pts.length; i++) g.lineTo(pl.pts[i].x, pl.pts[i].y);
+      g.lineWidth = 4; g.strokeStyle = '#35e0ff'; g.lineJoin = 'round'; g.shadowColor = '#35e0ff'; g.shadowBlur = 10; g.stroke(); g.shadowBlur = 0;
+    }
+    var head, ang = -.12;
+    if (pl.st === 'crashed') {
+      var f = pl.fall; f.vy += 520 * dt; f.x += f.vx * dt; f.y += f.vy * dt; f.a += f.va * dt;
+      if (f.y < PH + 60) planeSprite(g, f.x, f.y, f.a, 1, false);
+      if (Math.random() < .6 && f.y < PH) pl.parts.push({ x: f.x, y: f.y, vx: -30 + Math.random() * 60, vy: -20 + Math.random() * 40, life: .8, r: 4 + Math.random() * 5, c: '#7a6a9a' });
+    } else {
+      head = planePos(flying ? pl.tl : 0);
+      if (flying && pl.pts.length > 3) { var q = pl.pts[pl.pts.length - 4]; ang = Math.max(-.9, Math.min(.1, Math.atan2(head.y - q.y, head.x - q.x))); }
+      var bob = pl.st === 'idle' ? Math.sin(now / 300) * 2 : 0;
+      planeSprite(g, head.x, head.y + bob, ang, 1, flying);
+    }
+    for (i = pl.parts.length - 1; i >= 0; i--) {
+      p = pl.parts[i]; p.life -= dt * 1.1; if (p.life <= 0) { pl.parts.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt; g.globalAlpha = Math.max(p.life, 0); g.fillStyle = p.c; g.beginPath(); g.arc(p.x, p.y, p.r * p.life + 1, 0, 6.2832); g.fill();
+    }
+    g.globalAlpha = 1;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    var m = flying ? mAt(pl.tl) : 1;
+    if (pl.st === 'idle') {
+      g.font = '40px "Black Han Sans", sans-serif'; g.fillStyle = '#fff7e8'; g.shadowColor = '#0b0522'; g.shadowBlur = 0; g.lineWidth = 6; g.strokeStyle = '#0b0522';
+      g.strokeText('이륙 대기', PW / 2, 100); g.fillText('이륙 대기', PW / 2, 100);
+      g.font = '700 15px "Noto Sans KR", sans-serif'; g.fillStyle = '#ffd23f'; g.fillText('추락하기 전에 정산하세요', PW / 2, 138);
+    } else if (pl.st === 'crashed') {
+      g.font = '56px "Black Han Sans", sans-serif'; g.fillStyle = '#ff7a90'; g.lineWidth = 8; g.strokeStyle = '#0b0522';
+      g.strokeText('추락!  ×' + pl.c.toFixed(2), PW / 2, 100); g.fillText('추락!  ×' + pl.c.toFixed(2), PW / 2, 100);
+    } else {
+      var col = m < 2 ? '#fff7e8' : m < 5 ? '#35e0ff' : m < 8 ? '#ffd23f' : '#ff3d8b';
+      g.font = '72px "Black Han Sans", sans-serif'; g.fillStyle = col; g.lineWidth = 9; g.strokeStyle = '#0b0522'; g.shadowColor = col; g.shadowBlur = 18;
+      var tx = '×' + (Math.floor(m * 100) / 100).toFixed(2); g.strokeText(tx, PW / 2, 100); g.fillText(tx, PW / 2, 100); g.shadowBlur = 0;
+      if (pl.st === 'reveal') { g.font = '700 18px "Noto Sans KR", sans-serif'; g.fillStyle = '#6dffa0'; g.fillText('×' + pl.cashM.toFixed(2) + ' 정산 완료', PW / 2, 150); }
+    }
+  }
+
+  /* ---------- plane: logic ---------- */
+  function planePay(bet, m) { return Math.min(Math.floor(bet * Math.round(m * 100) * curMult() / 100 + 1e-9), MAX_MONEY); }
+  function readAuto() {
+    var a = parseFloat(String($('planeAuto').value).replace(',', '.'));
+    return a >= 1.1 && a <= 11.9 ? Math.round(a * 100) / 100 : 0;
+  }
+  function renderPlaneBtn() {
+    var b = $('planeGo');
+    if (pl.st === 'flying') {
+      var m = Math.floor(mAt(pl.tl) * 100) / 100, pay = planePay(pl.bet, m);
+      b.className = 'btn go fly'; b.disabled = false;
+      b.textContent = '정산하기 ×' + m.toFixed(2) + ' · ' + signed(pay - pl.bet);
+    } else if (pl.st === 'idle') {
+      b.className = 'btn go'; b.disabled = busy || state.balance < MIN_BET;
+      b.textContent = '이륙! ' + won(clampBet('plane')) + ' 베팅';
+    } else { b.className = 'btn go'; b.disabled = true; b.textContent = '결과 확인 중'; }
+  }
+  function takeoff() {
+    if (busy || pl.st !== 'idle' || state.balance < MIN_BET) return;
+    ac();
+    var bet = clampBet('plane'); $('planeBet').value = plain(bet);
+    state.balance -= bet; tweenBalance(state.balance); save();
+    pl.bet = bet; pl.auto = readAuto(); pl.c = 1 + 11 * Math.random();
+    pl.tc = Math.log(pl.c) / PLANE_RATE; pl.tAuto = pl.auto ? Math.log(pl.auto) / PLANE_RATE : 0;
+    pl.tl = 0; pl.pts = []; pl.parts = []; pl.fall = null; pl.cashM = 0; pl.st = 'flying'; pl.last = performance.now();
+    $('stage-plane').classList.remove('shake');
+    setBusy(true);
+    setResult('plane', '', '비행 중', won(bet) + ' 베팅' + (pl.auto ? ' · 자동 정산 ×' + pl.auto.toFixed(2) : ' · 타이밍을 노리세요'));
+    [330, 392, 523].forEach(function (f, i) { tone(f, .12, 'triangle', .07, i * .08); });
+  }
+  function cashOut(m) {
+    if (pl.st !== 'flying') return;
+    var m2 = Math.floor(m * 100) / 100, pay = planePay(pl.bet, m2), net = pay - pl.bet, M = curMult();
+    pl.cashM = m2; pl.st = 'reveal';
+    commitRound('plane', true, m2, net, pay);
+    setResult('plane', 'win', '×' + m2.toFixed(2) + ' 정산 성공', '베팅액 × ' + m2.toFixed(2) + (M > 1 ? ' × 캐릭터 ' + xf(M).slice(1) : '') + ' = ' + won(pay) + ' 수령 (' + signed(net) + ')');
+    confetti(m2 >= 5 ? 200 : 120); sfxWin();
+    if (m2 >= 10) showToast('고도 ' + m2.toFixed(1) + '배 정산! 대단해요');
+  }
+  function crash() {
+    if (pl.st !== 'flying') return;
+    var h = planePos(pl.tc), net = -pl.bet;
+    pl.st = 'crashed';
+    pl.fall = { x: h.x, y: h.y, vx: 90, vy: -50, a: -.2, va: 3.2 };
+    boom(h.x, h.y);
+    commitRound('plane', false, pl.c, net, 0);
+    setResult('plane', 'lose', '추락! ×' + pl.c.toFixed(2), '정산하지 못해 베팅액 ' + won(pl.bet) + '을 모두 잃었어요');
+    sfxLose();
+    var st = $('stage-plane'); st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake');
+    setTimeout(endPlaneUi, 1900);
+  }
+  function crashAfterCash() {
+    var h = planePos(pl.tc);
+    pl.st = 'crashed'; pl.fall = { x: h.x, y: h.y, vx: 90, vy: -50, a: -.2, va: 3.2 };
+    boom(h.x, h.y); tone(180, .4, 'sawtooth', .05);
+    var sub = $('planeResult').lastChild; if (sub) sub.textContent += ' · 비행기는 ×' + pl.c.toFixed(2) + '에서 추락했어요';
+    setTimeout(endPlaneUi, 1500);
+  }
+  function endPlaneUi() { pl.st = 'idle'; pl.pts = []; pl.parts = []; pl.fall = null; setBusy(false); syncBets(); renderPlaneBtn(); renderOver(); }
+  function planeFrame(now) {
+    var dt = Math.min((now - pl.last) / 1000, .1); pl.last = now;
+    if (pl.st === 'flying' || pl.st === 'reveal') {
+      pl.tl += dt * (pl.st === 'reveal' ? 4 : 1);
+      var h = planePos(pl.tl); pl.pts.push({ x: h.x, y: h.y }); if (pl.pts.length > 900) pl.pts.shift();
+      if (pl.st === 'flying') {
+        if (pl.auto && pl.tAuto < pl.tc && pl.tl >= pl.tAuto) cashOut(pl.auto);
+        else if (pl.tl >= pl.tc) crash();
+      } else if (pl.tl >= pl.tc) crashAfterCash();
+    }
+    if (pl.cv.offsetParent) { drawPlane(now, dt); if (pl.st === 'flying') renderPlaneBtn(); }
+    requestAnimationFrame(planeFrame);
+  }
+  pl.last = performance.now();
+  requestAnimationFrame(planeFrame);
+
+  /* ---------- rendering ---------- */
+  function showToast(text) {
+    var t = document.createElement('div'); t.className = 'toast'; t.textContent = text;
+    $('toasts').appendChild(t); setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 3500);
+  }
+  function tweenBalance(to) {
+    var from = state.shown, t0 = performance.now(), d = reduce ? 0 : 700;
+    function f(t) {
+      var k = d ? Math.min((t - t0) / d, 1) : 1, e = 1 - Math.pow(1 - k, 3);
+      state.shown = k >= 1 ? to : Math.round(from + (to - from) * e);
+      $('bal').textContent = won(state.shown);
+      if (k < 1) requestAnimationFrame(f);
+    }
+    requestAnimationFrame(f);
+  }
+  function maxBet(g) { return Math.min(Math.floor(state.balance / MIN_BET) * MIN_BET, limitFor(g)); }
+  function betValue(p) { var v = Number(String($(p + 'Bet').value).replace(/[^0-9]/g, '')); return v > 0 ? v : MIN_BET; }
+  function clampBet(p) {
+    var v = Math.round(betValue(p) / MIN_BET) * MIN_BET, m = maxBet(p);
+    if (v < MIN_BET) v = MIN_BET;
+    if (v > m) v = Math.max(m, MIN_BET);
+    return v;
+  }
+  function back(g, bet, win) { return win ? Math.min(Math.round(bet * RULES[g].win * curMult()), MAX_MONEY) : Math.floor(bet * RULES[g].lose / 10); }
+  function renderPreview(p) {
+    var b = clampBet(p), lim = limitFor(p), M = curMult();
+    var h = '<div>베팅 한도 <b>' + won(lim) + '</b>' + (b >= lim ? ' · 한도까지 걸었어요' : '') + '</div>' +
+      (M > 1 ? '<div>대표 캐릭터 배수 <b class="w">' + xf(M) + '</b> 적용 중</div>' : '') +
+      '<div>베팅 <b>' + won(b) + '</b></div>';
+    if (p === 'plane') {
+      h += '<div>×2 정산 <b class="w">' + signed(planePay(b, 2) - b) + '</b> · ×6 정산 <b class="w">' + signed(planePay(b, 6) - b) + '</b></div>' +
+        '<div>추락하면 <b class="l">' + signed(-b) + '</b></div>';
+    } else {
+      var w = back(p, b, true), l = back(p, b, false);
+      h += '<div>맞히면 <b class="w">' + signed(w - b) + '</b> (총 ' + won(w) + ' 수령)</div>' +
+        '<div>틀리면 <b class="l">' + signed(l - b) + '</b> (' + won(l) + ' 돌려받음)</div>';
+    }
+    $(p + 'Preview').innerHTML = h;
+  }
+  function renderStats() {
+    $('rounds').textContent = state.rounds.toLocaleString('ko-KR');
+    $('rate').textContent = state.rounds ? Math.round(state.wins / state.rounds * 100) + '%' : '-';
+    $('best').textContent = short(state.best);
+    $('limitStat').textContent = short(curLimit());
+  }
+  function histHTML(g) {
+    var h = state.hist[g];
+    if (!h.length) return '<span class="empty">아직 기록이 없어요. 첫 판을 시작해 보세요.</span>';
+    return h.slice(-12).reverse().map(function (r) {
+      var cls, st = '', txt = r.n;
+      if (g === 'oe') cls = r.n % 2 ? 'o' : 'e';
+      else if (g === 'ball') { cls = 'b'; st = ' style="background:' + BALL_COLORS[r.n - 1] + '"'; }
+      else if (g === 'snail') { cls = 's'; st = ' style="background:' + SNAILS[r.n - 1].c + '"'; }
+      else { cls = 'p'; txt = r.n.toFixed(1) + '×'; }
+      return '<div class="dot ' + cls + (r.win ? '' : ' lost') + '"><i' + st + '>' + txt + '</i><span class="' + (r.win ? 'w' : 'l') + '">' + (r.win ? (g === 'plane' ? '정산' : '적중') : (g === 'plane' ? '추락' : '실패')) + '</span></div>';
+    }).join('');
+  }
+  function renderHist() { GAMES.forEach(function (g) { $(g + 'Hist').innerHTML = histHTML(g); }); }
+  function renderSpark() {
+    var t = state.trend, W = 300, H = 90, pad = 8;
+    var lo = Math.min.apply(null, t), hi = Math.max.apply(null, t);
+    if (hi === lo) { hi += 1000; lo -= 1000; }
+    var pts = t.map(function (v, i) { return [t.length === 1 ? W / 2 : pad + (W - pad * 2) * i / (t.length - 1), H - pad - (H - pad * 2) * (v - lo) / (hi - lo)]; });
+    var line = pts.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
+    var last = pts[pts.length - 1];
+    var yStart = Math.max(pad, Math.min(H - pad, H - pad - (H - pad * 2) * (START - lo) / (hi - lo)));
+    var area = pts.length > 1 ? '<polygon class="area" points="' + pts[0][0] + ',' + (H - pad) + ' ' + line + ' ' + last[0] + ',' + (H - pad) + '"/>' : '';
+    $('spark').innerHTML = '<line class="grid" x1="0" x2="' + W + '" y1="' + yStart.toFixed(1) + '" y2="' + yStart.toFixed(1) + '"/>' + area +
+      (pts.length > 1 ? '<polyline class="line" points="' + line + '" vector-effect="non-scaling-stroke"/>' : '') +
+      '<circle class="end" cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="5"/>';
+    var diff = state.balance - START;
+    $('sparkNote').textContent = '점선은 시작 금액 10,000원 · 현재 ' + (diff === 0 ? '본전' : signed(diff)) + ' (최근 80회까지 표시)';
+    var dl = $('delta'); dl.textContent = diff === 0 ? '시작 금액과 같아요' : '시작 대비 ' + signed(diff); dl.className = 'delta' + (diff > 0 ? ' up' : diff < 0 ? ' down' : '');
+  }
+  function renderMe() {
+    var c = charById(state.equipped);
+    $('avatar').innerHTML = c ? ART[c.id] : ART.rookie;
+    $('avName').textContent = myName();
+    $('colCount').textContent = '컬렉션 ' + state.owned.length + '/' + CHARS.length + ' · 적중 배수 ' + xf(curMult());
+    var s = standings('worth'), me = s.filter(function (x) { return x.me; })[0];
+    $('rankNo').textContent = '#' + me.rank; $('rankOf').textContent = '/ ' + s.length + '명';
+  }
+  function renderOver() {
+    var over = state.balance < MIN_BET && pl.st === 'idle';
+    Array.prototype.forEach.call(document.querySelectorAll('.over'), function (o) { o.classList.toggle('show', over); });
+  }
+  function setResult(p, cls, big, sub) {
+    var r = $(p + 'Result'); r.className = 'result ' + cls;
+    r.innerHTML = '<div class="big"></div><div class="sub"></div>';
+    r.firstChild.textContent = big; r.lastChild.textContent = sub;
+  }
+  function setBusy(b) {
+    busy = b;
+    var off = b || state.balance < MIN_BET;
+    ['pickOdd', 'pickEven', 'oeBet', 'ballBet', 'snailBet', 'planeBet', 'planeAuto'].forEach(function (id) { $(id).disabled = off; });
+    Array.prototype.forEach.call(document.querySelectorAll('.chip, .ballpick, .snailpick'), function (x) { x.disabled = off; });
+    renderPlaneBtn();
+    renderShop();
+  }
+  function syncBets() { GAMES.forEach(function (p) { $(p + 'Bet').value = plain(clampBet(p)); renderPreview(p); }); renderPlaneBtn(); }
+  function renderAll() {
+    renderStats(); renderHist(); renderSpark(); renderMe(); renderOver(); setBusy(false); syncBets(); renderRank(); renderAch();
+  }
+
+  /* ---------- rounds ---------- */
+  function bumpStats(g, win) {
+    var s = state.stats;
+    if (win) { s.streak += 1; s.bestStreak = Math.max(s.bestStreak, s.streak); s.gw[g] += 1; } else s.streak = 0;
+  }
+  /* apply a finished round to the saved state (the plane bet was already taken at takeoff, so it passes the payout) */
+  function commitRound(g, win, n, net, planePayout) {
+    if (g === 'plane') state.balance = Math.min(state.balance + planePayout, MAX_MONEY);
+    else state.balance = Math.min(state.balance + net, MAX_MONEY);
+    state.rounds += 1; if (win) state.wins += 1;
+    state.best = Math.max(state.best, state.balance);
+    state.hist[g].push({ n: n, win: win }); state.hist[g] = state.hist[g].slice(-12);
+    if (g === 'plane' && win) state.stats.maxPlane = Math.max(state.stats.maxPlane, n);
+    bumpStats(g, win);
+    state.trend.push(state.balance); state.trend = state.trend.slice(-80);
+    tweenBalance(state.balance); save();
+    renderStats(); renderHist(); renderSpark(); renderMe(); renderOver(); checkAch(); renderRank();
+  }
+  function settle(g, bet, win, n, titleWin, titleLose) {
+    var r = RULES[g], got = back(g, bet, win), net = got - bet;
+    commitRound(g, win, n, net);
+    if (win) {
+      var m = curMult();
+      setResult(g, 'win', titleWin, '베팅액의 ' + r.win + '배' + (m > 1 ? ' × 캐릭터 ' + xf(m).slice(1) + '배' : '') + ' = ' + won(got) + ' 수령 (' + signed(net) + ')');
+      confetti(); sfxWin();
+    } else {
+      setResult(g, 'lose', titleLose, '베팅액의 ' + (r.lose / 10) + '배 ' + won(got) + ' 돌려받음 (' + signed(net) + ')');
+      sfxLose();
+      var st = $('stage-' + g); st.classList.remove('shake'); void st.offsetWidth; st.classList.add('shake');
+    }
+    setBusy(false); syncBets();
+  }
+  function playOE(pick) {
+    if (busy || state.balance < MIN_BET) return;
+    ac();
+    var bet = clampBet('oe'); $('oeBet').value = plain(bet);
+    $('pickOdd').classList.toggle('chosen', pick === 'odd'); $('pickEven').classList.toggle('chosen', pick === 'even');
+    setBusy(true);
+    setResult('oe', '', '휠이 돌아가요', (pick === 'odd' ? '홀' : '짝') + '에 ' + won(bet) + ' 베팅');
+    var n = Math.floor(Math.random() * SEG) + 1;
+    var center = (n - 1) * ANG + ANG / 2, jit = (Math.random() - .5) * (ANG - 6);
+    var delta = (((-(center + jit) - state.rot) % 360) + 360) % 360, dur = reduce ? 10 : 4200;
+    state.rot += 360 * 5 + delta;
+    $('wheel').style.transform = 'rotate(' + state.rot + 'deg)';
+    if (!reduce) ticks(dur, 38);
+    setTimeout(function () {
+      var isOdd = n % 2 === 1, win = (pick === 'odd') === isOdd, par = isOdd ? '홀' : '짝';
+      settle('oe', bet, win, n, n + ' · ' + par + ' 적중', n + ' · ' + par + ' 실패');
+    }, dur + 150);
+  }
+  function playBall(pick) {
+    if (busy || state.balance < MIN_BET) return;
+    ac();
+    var bet = clampBet('ball'); $('ballBet').value = plain(bet);
+    Array.prototype.forEach.call(document.querySelectorAll('.ballpick'), function (b) { b.classList.toggle('chosen', parseInt(b.getAttribute('data-n'), 10) === pick); });
+    setBusy(true);
+    setResult('ball', '', '공이 섞이는 중', pick + '번에 ' + won(bet) + ' 베팅');
+    var n = Math.floor(Math.random() * 5) + 1;
+    if (!reduce) ticks(2600, 22);
+    machine.draw(n, function () { settle('ball', bet, pick === n, n, n + '번 공 적중', n + '번 공 실패'); });
+  }
+  function playSnail(pick) {
+    if (busy || state.balance < MIN_BET) return;
+    ac();
+    var bet = clampBet('snail'); $('snailBet').value = plain(bet);
+    Array.prototype.forEach.call(document.querySelectorAll('.snailpick'), function (b) { b.classList.toggle('chosen', parseInt(b.getAttribute('data-n'), 10) === pick); });
+    setBusy(true);
+    setResult('snail', '', '경주 시작', pick + '번 ' + SNAILS[pick - 1].name + '에 ' + won(bet) + ' 베팅');
+    if (!reduce) ticks(6500, 30);
+    raceSnails(function (win) {
+      var nm = win + '번 ' + SNAILS[win - 1].name;
+      settle('snail', bet, pick === win, win, nm + ' 우승 · 적중', nm + ' 우승 · 실패');
+    });
+  }
+
+  /* ---------- shop ---------- */
+  function renderShop(popId) {
+    var counts = botTierCounts();
+    $('shopGrid').innerHTML = CHARS.map(function (c, i) {
+      var owned = state.owned.indexOf(c.id) >= 0, eq = state.equipped === c.id;
+      var prevOwned = i === 0 || state.owned.indexOf(CHARS[i - 1].id) >= 0, can = prevOwned && state.balance >= c.price;
+      var pct = Math.min(100, state.balance / c.price * 100), action;
+      if (owned) action = '<button class="btn" type="button" data-equip="' + c.id + '"' + (eq || busy ? ' disabled' : '') + '>' + (eq ? '장착 중' : '대표로 장착') + '</button>';
+      else action = '<button class="btn" type="button" data-buy="' + c.id + '"' + (can && !busy ? '' : ' disabled') + '>' + (!prevOwned ? '이전 단계 먼저' : (can ? '구매하기' : '잔액 부족')) + '</button>';
+      var info = owned ? '' : '<div class="meter" aria-hidden="true"><i style="width:' + pct.toFixed(1) + '%"></i></div><div class="need">' +
+        (!prevOwned ? esc(CHARS[i - 1].name) + '을(를) 먼저 구매해야 해요' : (can ? '살 수 있어요' : '부족한 금액 ' + won(c.price - state.balance))) + '</div>';
+      var n = counts[i + 1], rare = n > 0 ? '전체 플레이어 중 ' + (Math.round(n / (BOTS.length + 1) * 1000) / 10) + '%가 보유' : (owned ? '당신이 처음으로 얻었어요' : '아직 아무도 얻지 못했어요');
+      return '<div class="card' + (owned ? ' owned' : (can ? '' : ' locked')) + (popId === c.id ? ' pop' : '') + '">' +
+        '<div class="art" style="--t1:' + c.t1 + ';--t2:' + c.t2 + '"><span class="tier">' + (i + 1) + '단계</span>' + (owned ? '<span class="badge">' + (eq ? '장착 중' : '보유') + '</span>' : '') + ART[c.id] + '</div>' +
+        '<div><h4>' + c.name + '</h4><p>' + c.desc + '</p></div>' +
+        '<div class="mult">적중 시 받는 돈 <b>' + xf(MULT[c.id]) + '</b></div>' +
+        '<div class="mult">베팅 한도 <b class="lim">' + short(LIMITS[i + 1]) + '</b></div>' +
+        '<div class="rare">' + rare + '</div>' +
+        '<div class="price">' + short(c.price) + '<small>' + (c.price < 1e12 ? won(c.price) : '10^' + Math.round(Math.log10(c.price)) + '원') + (i ? ' · 이전 단계의 2배' : '') + '</small></div>' +
+        info + action + '</div>';
+    }).join('');
+  }
+  function buy(id) {
+    var c = charById(id);
+    if (!c || busy || state.owned.indexOf(id) >= 0 || state.balance < c.price) return;
+    var ti = charTier(id); if (ti > 1 && state.owned.indexOf(CHARS[ti - 2].id) < 0) return;
+    ac();
+    state.balance -= c.price; state.owned.push(id); state.equipped = id;
+    state.trend.push(state.balance); state.trend = state.trend.slice(-80);
+    tweenBalance(state.balance);
+    $('shopMsg').textContent = c.name + ' 구매 완료. 대표 캐릭터로 장착했고, 적중 시 받는 돈이 ' + xf(MULT[id]) + ' 됩니다.';
+    confetti(180); sfxBuy();
+    save();
+    renderStats(); renderSpark(); renderMe(); renderOver(); checkAch(); setBusy(false); renderShop(id); syncBets(); renderRank();
+    pushFeed('<b>' + esc(myName()) + '</b>님이 ' + esc(c.name) + '(' + ti + '단계)을 해금했어요', true);
+  }
+  function equip(id) {
+    if (busy || state.owned.indexOf(id) < 0) return;
+    state.equipped = id; syncBets(); $('shopMsg').textContent = charById(id).name + '을(를) 대표 캐릭터로 장착했어요.';
+    save(); renderMe(); renderShop(); renderStats();
+  }
+
+  /* ---------- reset ---------- */
+  function resetMoney() {
+    if (busy) return;
+    state.balance = START; state.rounds = 0; state.wins = 0; state.best = START; state.trend = [START];
+    GAMES.forEach(function (g) { state.hist[g] = []; }); state.stats.streak = 0;
+    Array.prototype.forEach.call(document.querySelectorAll('.chosen'), function (x) { x.classList.remove('chosen'); });
+    tweenBalance(START); save();
+    setResult('oe', '', '홀일까, 짝일까', '금액을 정하고 홀 또는 짝을 눌러 휠을 돌리세요.');
+    setResult('ball', '', '몇 번 공이 나올까', '금액을 정하고 1부터 5까지 번호를 고르면 추첨이 시작돼요.');
+    setResult('snail', '', '어느 달팽이가 이길까', '금액을 정하고 달팽이를 고르면 경주가 시작돼요.');
+    setResult('plane', '', '이륙 준비', '금액을 정하고 이륙한 뒤, 추락하기 전에 정산하세요.');
+    renderAll();
+  }
+  var resetArm = 0, resetTimer = 0;
+  function resetAll() {
+    var btn = $('restart');
+    if (!resetArm) {
+      resetArm = 1; btn.textContent = '한 번 더 누르면 삭제'; btn.classList.add('warn');
+      resetTimer = setTimeout(function () { resetArm = 0; btn.textContent = '모두 초기화'; btn.classList.remove('warn'); }, 3500);
+      return;
+    }
+    clearTimeout(resetTimer); resetArm = 0; btn.textContent = '모두 초기화'; btn.classList.remove('warn');
+    if (busy) return;
+    state.owned = []; state.equipped = null; state.ach = {}; state.stats = { streak: 0, bestStreak: 0, maxPlane: 0, gw: { oe: 0, ball: 0, snail: 0, plane: 0 } };
+    $('shopMsg').textContent = '';
+    resetMoney();
+  }
+
+  /* ---------- simulated players: ranking, feed, achievements ---------- */
+  var EPOCH = Date.UTC(2026, 10, 1), rankMode = 'worth';
+  var NAMES = ['럭키세븐', '홀짝마스터', '달팽이왕', '비행기조종사', '오늘도홀', '짝수교', '머니볼장인', '잭팟사냥꾼', '네잎클로버', '주사위요정',
+    '한방인생', '올인러', '소심한베터', '야근후한판', '새벽도박사', '치킨값벌기', '월급루팡', '별빛한잔', '구름위의칩', '황금손',
+    '쫄보베터', '달빛토끼', '칩쌓는곰', '동전수집가', '번개맨', '심야카지노', '대박기원', '한판더', '홀수만간다', '짝수가답이다',
+    '용돈벌이', '로켓탑승', '안전정산러', '열두배가자', '1배도감사', '스네일킹', '슬로우레이서', '과감한곰돌', '카드요정', '룰렛러버',
+    '느긋한부엉', '밤샘딜러', '행운소환', '복권대신', '천천히부자', '인생역전', '호기심천국', '쓰리고', '플러스만', '마이너스탈출',
+    '다이아손', '소나기', '민트초코', '김밥천국', '라면한그릇', '출근전한판', '퇴근후한판', '점심내기', '주말의왕', '월요병', '수요일의칩'];
+  function rng(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var BOTS = (function () {
+    var r = rng(20261108), out = [], used = {};
+    for (var i = 0; i < 200; i++) {
+      var nm = '', k = 0;
+      do { nm = NAMES[(r() * NAMES.length) | 0] + (r() < .6 ? String(((r() * 98) | 0) + 1) : ''); k++; } while (used[nm] && k < 30);
+      used[nm] = 1;
+      out.push({ name: nm, w0: Math.pow(10, 4 + 7.2 * Math.pow(r(), 1.35)), g: .01 + r() * .04, f: 1.5 + r() * 4.5, ph: r() * 6.28 });
+    }
+    return out;
+  })();
+  function botWorth(b, now) { var d = (now - EPOCH) / 864e5; return Math.min(b.w0 * Math.exp(b.g * d) * (1 + .18 * Math.sin(d * b.f + b.ph)), 3e12); }
+  function botTier(w) { return Math.min(20, Math.floor(Math.log(w / 1e6 + 1) / Math.LN2)); }
+  function botTierCounts() {
+    var now = Date.now(), c = [], i; for (i = 0; i <= 20; i++) c[i] = 0;
+    BOTS.forEach(function (b) { var t = botTier(botWorth(b, now)); for (var k = 1; k <= t; k++) c[k]++; });
+    return c;
+  }
+  function standings(mode) {
+    var now = Date.now();
+    var list = BOTS.map(function (b) { var w = botWorth(b, now); return { name: b.name, worth: w, tier: botTier(w), me: false }; });
+    list.push({ name: myName(), worth: myWorth(), tier: state.owned.length, me: true });
+    list.sort(mode === 'tier' ? function (a, b) { return b.tier - a.tier || b.worth - a.worth; } : function (a, b) { return b.worth - a.worth; });
+    list.forEach(function (x, i) { x.rank = i + 1; });
+    return list;
+  }
+  function rowHTML(x) {
+    var art = x.tier > 0 ? ART[CHARS[x.tier - 1].id] : ART.rookie;
+    return '<li class="row' + (x.me ? ' me' : '') + '"><span class="rk' + (x.rank <= 3 ? ' r' + x.rank : '') + '">' + x.rank + '</span><span class="av">' + art + '</span>' +
+      '<span class="nm">' + esc(x.name) + (x.me ? ' (나)' : '') + '<small>' + (x.tier > 0 ? esc(CHARS[x.tier - 1].name) + ' · ' : '') + x.tier + '/20종</small></span><span class="wt">' + short(x.worth) + '</span></li>';
+  }
+  function renderRank() {
+    if (tab !== 'rank') return;
+    var s = standings(rankMode), me = 0, i, h = '';
+    for (i = 0; i < s.length; i++) if (s[i].me) me = i;
+    var shown = {}, idx = [];
+    for (i = 0; i < 10; i++) { shown[i] = 1; idx.push(i); }
+    if (me >= 10) { [me - 1, me, me + 1].forEach(function (k) { if (k >= 10 && k < s.length) { shown[k] = 1; idx.push(k); } }); }
+    var prev = -1;
+    idx.forEach(function (k) { if (prev >= 0 && k - prev > 1) h += '<li class="row gap" aria-hidden="true">· · ·</li>'; h += rowHTML(s[k]); prev = k; });
+    $('rankList').innerHTML = h;
+    $('modeWorth').setAttribute('aria-pressed', String(rankMode === 'worth')); $('modeTier').setAttribute('aria-pressed', String(rankMode === 'tier'));
+  }
+
+  /* feed + ticker */
+  var feed = [], tickIdx = 0;
+  function ago(t) { var s = Math.max(0, Math.round((Date.now() - t) / 1000)); return s < 8 ? '방금' : s < 60 ? s + '초 전' : Math.round(s / 60) + '분 전'; }
+  function renderFeed() {
+    if (tab !== 'rank') return;
+    $('feedList').innerHTML = feed.slice(0, 9).map(function (f) { return '<li><span>' + f.html + '</span><time>' + ago(f.t) + '</time></li>'; }).join('');
+  }
+  function pushFeed(html, mine, t) {
+    feed.unshift({ html: html, t: t || Date.now() }); if (feed.length > 30) feed.length = 30;
+    if (!t) { var el = $('tick'); el.innerHTML = html; el.classList.remove('in'); void el.offsetWidth; el.classList.add('in'); }
+    renderFeed();
+  }
+  function bn(b) { return '<b>' + esc(b.name) + '</b>'; }
+  function genEvent(initialTime) {
+    var now = Date.now(), b = BOTS[(Math.random() * BOTS.length) | 0], w = botWorth(b, now), t = botTier(w), M = t ? CHARS[t - 1].mult : 1, r = Math.random();
+    var bet = Math.max(MIN_BET, Math.min(LIMITS[t], Math.floor(w * (.01 + Math.random() * .2) / 100) * 100)), html;
+    if (r < .2 && t > 0) html = bn(b) + '님이 ' + esc(CHARS[t - 1].name) + '(' + t + '단계)을 해금했어요';
+    else if (r < .44) { var m = 1.3 + Math.pow(Math.random(), 1.6) * 10.2; html = bn(b) + '님이 비행기 ×' + m.toFixed(2) + '에서 정산, ' + signed(Math.floor(bet * .4 * m * M) - Math.floor(bet * .4)); }
+    else if (r < .6) html = bn(b) + '님이 달팽이 ' + (1 + ((Math.random() * 4) | 0)) + '번에 걸어 적중, ' + signed(bet * 6 * M - bet);
+    else if (r < .74) html = bn(b) + '님이 홀짝을 맞혀 ' + signed(bet * 3 * M - bet) + ' 획득';
+    else if (r < .84) html = bn(b) + '님이 머니볼 ' + (1 + ((Math.random() * 5) | 0)) + '번을 맞혀 ' + signed(bet * 5 * M - bet) + ' 획득';
+    else if (r < .93) { var a = ACH[(Math.random() * ACH.length) | 0]; html = bn(b) + '님이 업적 \'' + esc(a.t) + '\'을(를) 달성했어요'; }
+    else { var s = standings('worth'), top = s[(Math.random() * 12) | 0]; html = '<b>' + esc(top.name) + '</b>님이 랭킹 ' + top.rank + '위에 올랐어요'; }
+    pushFeed(html, false, initialTime);
+  }
+  function updateOnline() {
+    var d = Date.now() / 60000; $('online').textContent = Math.round(150 + 38 * Math.sin(d / 7) + 14 * Math.sin(d * 1.7) + Math.random() * 6);
+  }
+  function scheduleEvents() { setTimeout(function () { genEvent(); updateOnline(); scheduleEvents(); }, 2800 + Math.random() * 4600); }
+
+  /* achievements */
+  function botCount(fn) { var now = Date.now(), n = 0; BOTS.forEach(function (b) { var w = botWorth(b, now); if (fn(w, botTier(w))) n++; }); return n; }
+  var ACH = [
+    { id: 'win1', t: '첫 승리', d: '아무 게임에서나 한 번 이기기', test: function () { return state.wins >= 1; }, pct: 96 },
+    { id: 'streak5', t: '5연승', d: '연속으로 5번 이기기', test: function () { return state.stats.bestStreak >= 5; }, pct: 31 },
+    { id: 'snail', t: '달팽이 예언가', d: '달팽이 경주에서 우승 맞히기', test: function () { return state.stats.gw.snail >= 1; }, pct: 62 },
+    { id: 'ball', t: '공 읽는 눈', d: '머니볼 번호 맞히기', test: function () { return state.stats.gw.ball >= 1; }, pct: 41 },
+    { id: 'plane5', t: '고도 5배', d: '비행기를 ×5 이상에서 정산하기', test: function () { return state.stats.maxPlane >= 5; }, pct: 38 },
+    { id: 'plane10', t: '구름 위의 배짱', d: '비행기를 ×10 이상에서 정산하기', test: function () { return state.stats.maxPlane >= 10; }, pct: 9 },
+    { id: 'c1', t: '첫 캐릭터', d: '캐릭터 1종 모으기', test: function () { return state.owned.length >= 1; }, bots: function (w, t) { return t >= 1; } },
+    { id: 'c5', t: '수집가', d: '캐릭터 5종 모으기', test: function () { return state.owned.length >= 5; }, bots: function (w, t) { return t >= 5; } },
+    { id: 'c10', t: '캐릭터 부자', d: '캐릭터 10종 모으기', test: function () { return state.owned.length >= 10; }, bots: function (w, t) { return t >= 10; } },
+    { id: 'c20', t: '잭팟 왕의 길', d: '캐릭터 20종 모두 모으기', test: function () { return state.owned.length >= 20; }, bots: function (w, t) { return t >= 20; } },
+    { id: 'm1m', t: '백만장자', d: '잔액 100만원 넘기기', test: function () { return state.best >= 1e6; }, bots: function (w) { return w >= 1e6; } },
+    { id: 'm1b', t: '억만장자', d: '잔액 1억원 넘기기', test: function () { return state.best >= 1e8; }, bots: function (w) { return w >= 1e8; } },
+    { id: 'm1t', t: '조 단위의 사나이', d: '잔액 1조원 넘기기', test: function () { return state.best >= 1e12; }, bots: function (w) { return w >= 1e12; } }
+  ];
+  function achPct(a) { return a.bots ? botCount(a.bots) / (BOTS.length + 1) * 100 : a.pct; }
+  function checkAch() {
+    var any = false;
+    ACH.forEach(function (a) {
+      if (!state.ach[a.id] && a.test()) { state.ach[a.id] = Date.now(); any = true; showToast('업적 달성 · ' + a.t); pushFeed('<b>' + esc(myName()) + '</b>님이 업적 \'' + esc(a.t) + '\'을(를) 달성했어요', true); }
+    });
+    if (any) { save(); renderAch(); }
+  }
+  function renderAch() {
+    if (tab !== 'rank') return;
+    var done = 0;
+    $('achList').innerHTML = ACH.map(function (a) {
+      var ok = !!state.ach[a.id], p = achPct(a); if (ok) done++;
+      var txt = p <= 0 ? '아직 아무도 달성하지 못했어요' : '전체 플레이어 중 ' + (p < 1 ? p.toFixed(1) : Math.round(p)) + '%가 달성';
+      return '<div class="ach' + (ok ? ' done' : '') + '"><span class="ic">' + (ok ? '✓' : '·') + '</span><div><b>' + esc(a.t) + '</b><small>' + esc(a.d) + '</small><small>' + (ok && p <= 0 ? '당신이 처음으로 달성했어요' : txt) + '</small><div class="pc"><i style="width:' + Math.min(100, p).toFixed(1) + '%"></i></div></div></div>';
+    }).join('');
+    $('achCount').textContent = '(' + done + '/' + ACH.length + ')';
+  }
+
+  /* ---------- wiring ---------- */
+  var CHIPS = [['add', 1000, '+1,000'], ['add', 10000, '+1만'], ['add', 100000, '+10만'], ['add', 1000000, '+100만'], ['add', 100000000, '+1억'], ['add', 1000000000000, '+1조'], ['mode', 'half', '절반'], ['mode', 'all', '최대'], ['mode', 'min', '최소']];
+  function betHTML(p) {
+    return '<label class="cap" for="' + p + 'Bet">베팅 금액</label>' +
+      '<div class="betbox"><input id="' + p + 'Bet" type="text" inputmode="numeric" autocomplete="off" value="1000"><span>원</span></div>' +
+      '<div class="chips">' + CHIPS.map(function (c) { return '<button class="chip" type="button" data-p="' + p + '" data-' + c[0] + '="' + c[1] + '">' + c[2] + '</button>'; }).join('') + '</div>';
+  }
+  GAMES.forEach(function (p) { $(p + 'BetSlot').innerHTML = betHTML(p); });
+  $('ballPicks').innerHTML = [1, 2, 3, 4, 5].map(function (n) { return '<button class="ballpick" type="button" data-n="' + n + '" style="--c:' + BALL_COLORS[n - 1] + '" aria-label="' + n + '번">' + n + '</button>'; }).join('');
+  buildTrack();
+
+  GAMES.forEach(function (p) {
+    $(p + 'Bet').addEventListener('input', function () { renderPreview(p); renderPlaneBtn(); });
+    $(p + 'Bet').addEventListener('change', function () { $(p + 'Bet').value = plain(clampBet(p)); renderPreview(p); renderPlaneBtn(); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.chip[data-p]'), function (c) {
+    c.addEventListener('click', function () {
+      var p = c.getAttribute('data-p'), add = c.getAttribute('data-add'), mode = c.getAttribute('data-mode'), v = betValue(p), m = maxBet(p);
+      if (add) v += parseInt(add, 10);
+      else if (mode === 'half') v = Math.floor(state.balance / 2 / MIN_BET) * MIN_BET;
+      else if (mode === 'all') v = m;
+      else if (mode === 'min') v = MIN_BET;
+      $(p + 'Bet').value = plain(Math.max(MIN_BET, Math.min(v, m))); renderPreview(p); renderPlaneBtn();
+    });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.autochip'), function (c) {
+    c.addEventListener('click', function () { $('planeAuto').value = c.getAttribute('data-auto'); });
+  });
+  $('pickOdd').addEventListener('click', function () { playOE('odd'); });
+  $('pickEven').addEventListener('click', function () { playOE('even'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.ballpick'), function (b) { b.addEventListener('click', function () { playBall(parseInt(b.getAttribute('data-n'), 10)); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('.snailpick'), function (b) { b.addEventListener('click', function () { playSnail(parseInt(b.getAttribute('data-n'), 10)); }); });
+  $('planeGo').addEventListener('click', function () {
+    if (pl.st === 'idle') takeoff();
+    else if (pl.st === 'flying') cashOut(Math.floor(mAt(pl.tl) * 100) / 100);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.again'), function (b) { b.addEventListener('click', resetMoney); });
+  $('restart').addEventListener('click', resetAll);
+  $('shopGrid').addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('button') : null; if (!t) return;
+    if (t.getAttribute('data-buy')) buy(t.getAttribute('data-buy'));
+    else if (t.getAttribute('data-equip')) equip(t.getAttribute('data-equip'));
+  });
+  $('snd').addEventListener('click', function () {
+    soundOn = !soundOn; this.textContent = soundOn ? '소리 켜짐' : '소리 꺼짐'; this.setAttribute('aria-pressed', String(soundOn));
+    if (soundOn) { ac(); tone(660, .12, 'triangle', .08); }
+  });
+  $('modeWorth').addEventListener('click', function () { rankMode = 'worth'; renderRank(); });
+  $('modeTier').addEventListener('click', function () { rankMode = 'tier'; renderRank(); });
+  $('nickSave').addEventListener('click', function () {
+    state.nick = $('nick').value.trim().slice(0, 12); save(); renderMe(); renderRank(); showToast(state.nick ? '닉네임을 "' + state.nick + '"(으)로 바꿨어요' : '닉네임을 지웠어요');
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (b) {
+    b.addEventListener('click', function () {
+      tab = b.getAttribute('data-tab');
+      Array.prototype.forEach.call(document.querySelectorAll('.tab'), function (x) { x.setAttribute('aria-selected', String(x === b)); });
+      ['oe', 'ball', 'snail', 'plane', 'shop', 'rank'].forEach(function (k) { $('pane-' + k).hidden = k !== tab; });
+      if (tab === 'shop') renderShop();
+      if (tab === 'rank') { renderRank(); renderFeed(); renderAch(); $('nick').value = state.nick; }
+      if (tab === 'plane') renderPlaneBtn();
+    });
+  });
+
+  load();
+  state.shown = state.balance;
+  buildWheel();
+  $('bal').textContent = won(state.balance);
+  setResult('oe', '', '홀일까, 짝일까', '금액을 정하고 홀 또는 짝을 눌러 휠을 돌리세요.');
+  setResult('ball', '', '몇 번 공이 나올까', '금액을 정하고 1부터 5까지 번호를 고르면 추첨이 시작돼요.');
+  setResult('snail', '', '어느 달팽이가 이길까', '금액을 정하고 달팽이를 고르면 경주가 시작돼요.');
+  setResult('plane', '', '이륙 준비', '금액을 정하고 이륙한 뒤, 추락하기 전에 정산하세요.');
+  (function seedFeed() {
+    var now = Date.now();
+    for (var i = 8; i >= 1; i--) genEvent(now - i * 17000 - Math.random() * 9000);
+    var el = $('tick'); el.innerHTML = feed[0].html;
+  })();
+  renderAll();
+  updateOnline();
+  scheduleEvents();
+  setInterval(function () { if (tab === 'rank') { renderRank(); renderFeed(); } }, 6000);
+})();
+</script>
+
+</body>
+</html>
